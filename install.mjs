@@ -8,6 +8,7 @@ import {
   realpath,
   symlink,
   unlink,
+  writeFile,
 } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import path from 'node:path';
@@ -43,6 +44,11 @@ const managedFiles = [
 const skillsSourceRoot = path.join(repoRoot, 'skills');
 const userSkillsRoot = path.join(homeDir, '.agents', 'skills');
 const retiredRepositorySkills = ['repository-context'];
+const repomixPolicyContent = [
+  'policy:',
+  '  allow_implicit_invocation: false',
+  '',
+].join('\n');
 
 function info(message) {
   console.log(`[codex-workflow] ${message}`);
@@ -97,6 +103,63 @@ function timestamp() {
     '-',
     String(now.getMilliseconds()).padStart(3, '0'),
   ].join('');
+}
+
+function enforceExplicitInvocationPolicy(content) {
+  const newline = content.includes('\r\n') ? '\r\n' : '\n';
+  const lines = content.split(/\r?\n/);
+  const blockPolicyIndex = lines.findIndex((line) => /^policy:\s*(?:#.*)?$/.test(line));
+
+  if (blockPolicyIndex !== -1) {
+    let sectionEnd = lines.length;
+    for (let index = blockPolicyIndex + 1; index < lines.length; index += 1) {
+      const line = lines[index];
+      if (line.trim() === '' || line.trimStart().startsWith('#')) continue;
+      if (/^\S/.test(line)) {
+        sectionEnd = index;
+        break;
+      }
+    }
+
+    const settingIndex = lines.findIndex(
+      (line, index) => index > blockPolicyIndex
+        && index < sectionEnd
+        && /^\s+allow_implicit_invocation\s*:/.test(line),
+    );
+
+    if (settingIndex !== -1) {
+      const indentation = lines[settingIndex].match(/^\s*/)?.[0] || '  ';
+      lines[settingIndex] = `${indentation}allow_implicit_invocation: false`;
+    } else {
+      lines.splice(blockPolicyIndex + 1, 0, '  allow_implicit_invocation: false');
+    }
+
+    return lines.join(newline);
+  }
+
+  const inlinePolicyIndex = lines.findIndex((line) => /^policy:\s*\{.*\}\s*(?:#.*)?$/.test(line));
+  if (inlinePolicyIndex !== -1) {
+    const match = lines[inlinePolicyIndex].match(/^policy:\s*\{(.*)\}\s*(#.*)?$/);
+    if (!match) fail('Could not parse the existing inline Repomix policy metadata.');
+
+    let body = match[1].trim();
+    if (/\ballow_implicit_invocation\s*:/.test(body)) {
+      body = body.replace(
+        /\ballow_implicit_invocation\s*:\s*(?:true|false)/,
+        'allow_implicit_invocation: false',
+      );
+    } else {
+      body = body ? `${body}, allow_implicit_invocation: false` : 'allow_implicit_invocation: false';
+    }
+
+    const comment = match[2] ? ` ${match[2]}` : '';
+    lines[inlinePolicyIndex] = `policy: { ${body} }${comment}`;
+    return lines.join(newline);
+  }
+
+  const trimmedEnd = content.replace(/[\r\n]+$/, '');
+  const separator = trimmedEnd.length === 0 ? '' : `${newline}${newline}`;
+  return `${trimmedEnd}${separator}policy:${newline}  allow_implicit_invocation: false${newline}`;
 }
 
 function checkRuntime() {
@@ -256,33 +319,75 @@ function runNpx(args) {
   }
 }
 
+async function configureRepomixExplorer(officialTarget) {
+  const agentsDirectory = path.join(officialTarget, 'agents');
+  const metadataPath = path.join(agentsDirectory, 'openai.yaml');
+  await mkdir(agentsDirectory, { recursive: true });
+
+  if (!(await exists(metadataPath))) {
+    await writeFile(metadataPath, repomixPolicyContent, 'utf8');
+    info('Repomix Explorer configured for explicit invocation only.');
+    return;
+  }
+
+  const metadataStat = await lstat(metadataPath);
+  if (metadataStat.isDirectory()) {
+    fail(`Repomix metadata path is a directory, expected a file: ${metadataPath}`);
+  }
+  if (metadataStat.isSymbolicLink()) {
+    fail(`Refusing to modify symlinked Repomix metadata: ${metadataPath}`);
+  }
+
+  const existingContent = await readFile(metadataPath, 'utf8');
+  const updatedContent = enforceExplicitInvocationPolicy(existingContent);
+  if (updatedContent === existingContent) {
+    info('Repomix Explorer is already configured for explicit invocation only.');
+    return;
+  }
+
+  const backupTarget = path.join(
+    codexHome,
+    'backups',
+    timestamp(),
+    'skills',
+    'repomix-explorer',
+    'agents',
+    'openai.yaml',
+  );
+  await mkdir(path.dirname(backupTarget), { recursive: true });
+  await copyFile(metadataPath, backupTarget);
+  await writeFile(metadataPath, updatedContent, 'utf8');
+  info(`Backed up Repomix metadata: ${backupTarget}`);
+  info('Repomix Explorer configured for explicit invocation only.');
+}
+
 async function installRepomixExplorer() {
   const officialTarget = path.join(userSkillsRoot, 'repomix-explorer');
-  if (await exists(path.join(officialTarget, 'SKILL.md'))) {
+  const skillFile = path.join(officialTarget, 'SKILL.md');
+
+  if (!(await exists(skillFile))) {
+    info('Installing the official Repomix Explorer skill. Repomix itself will run through npx only when invoked explicitly.');
+    runNpx([
+      '--yes',
+      'skills@latest',
+      'add',
+      'yamadashy/repomix',
+      '--skill',
+      'repomix-explorer',
+      '--agent',
+      'codex',
+      '--global',
+      '--yes',
+    ]);
+  } else {
     info('Repomix Explorer is already available.');
-    return;
   }
 
-  info('Installing the official Repomix Explorer skill. Repomix itself will run through npx only when needed.');
-  runNpx([
-    '--yes',
-    'skills@latest',
-    'add',
-    'yamadashy/repomix',
-    '--skill',
-    'repomix-explorer',
-    '--agent',
-    'codex',
-    '--global',
-    '--yes',
-  ]);
-
-  if (await exists(path.join(officialTarget, 'SKILL.md'))) {
-    info('Repomix Explorer installed.');
-    return;
+  if (!(await exists(skillFile))) {
+    fail('Repomix Explorer installation completed, but its SKILL.md could not be located.');
   }
 
-  fail('Repomix Explorer installation completed, but its SKILL.md could not be located.');
+  await configureRepomixExplorer(officialTarget);
 }
 
 async function main() {
