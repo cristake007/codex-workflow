@@ -176,8 +176,9 @@ async function installRepositorySkills() {
 }
 
 function runNpx(args) {
-  const executable = isWindows ? 'npx.cmd' : 'npx';
-  const result = spawnSync(executable, args, {
+  const executable = isWindows ? (process.env.ComSpec || 'cmd.exe') : 'npx';
+  const executableArgs = isWindows ? ['/d', '/s', '/c', 'npx', ...args] : args;
+  const result = spawnSync(executable, executableArgs, {
     cwd: repoRoot,
     env: process.env,
     stdio: 'inherit',
