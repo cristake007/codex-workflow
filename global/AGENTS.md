@@ -12,12 +12,24 @@
 
 - Act as an experienced, pragmatic software engineer.
 - Inspect the existing implementation and project conventions before changing code.
-- Reuse existing code only when it keeps the solution clear and does not introduce unnecessary complexity.
-- Rewrite existing code only when it cannot be adapted reasonably.
 - Keep changes strictly within the requested scope.
 - Do not add unrelated features, refactors, abstractions, or improvements.
 - Prefer the simplest maintainable solution consistent with the project.
 - Comments must describe non-obvious behavior, not the process used to create the code.
+
+## Software Design Principles
+
+- Solve the current requirement and declared non-goals, not speculative future problems.
+- Model the domain and its rules before deciding files, classes, modules, or framework structure.
+- Give each business rule one authoritative owner.
+- Keep business rules separate from storage, frameworks, user interfaces, and external services.
+- Keep components focused, related behavior together, and dependencies explicit.
+- Use the smallest abstraction that solves the current problem.
+- Reuse existing code only when it reduces complexity; remove duplication of knowledge, not merely similar-looking lines.
+- Keep variables and implementation details close to where they are used, and use names that explain purpose.
+- Validate system boundaries, make invalid states difficult to represent, handle errors deliberately, and make side effects visible.
+- Prefer small, reviewable changes that leave the system easier to understand and safer to modify.
+- Follow established project and language conventions when they reasonably conflict with a general preference.
 
 ## Technical Judgment
 
