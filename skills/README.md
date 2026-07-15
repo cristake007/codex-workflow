@@ -8,4 +8,4 @@ Current repository skill:
 
 - `software-design` — applies the language-independent engineering constitution to new applications, architecture decisions, major features, substantial refactors, and design reviews.
 
-The official `repomix-explorer` skill is installed separately by `install.mjs` from the official Repomix repository. Global `AGENTS.md` guidance keeps normal repository inspection direct and selective, while Codex may use the official skill when broad exploration genuinely warrants Repomix.
+The official `repomix-explorer` skill is installed separately by `install.mjs` from the official Repomix repository. The installer adds or updates `agents/openai.yaml` so `policy.allow_implicit_invocation` is `false`. Repomix Explorer therefore remains available through explicit `$repomix-explorer` invocation but is not selected automatically for ordinary repository-analysis prompts.
