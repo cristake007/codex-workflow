@@ -1,36 +1,58 @@
 # Codex Workflow
 
-Personal Codex configuration and reusable skills.
+Personal Codex instructions, reusable skills, project templates, and cross-platform setup.
 
-## Windows setup
+## Requirements
 
-Clone the repository inside your Windows user profile, then run the installer once:
+- Node.js 22 or newer
+- Git
+- Windows or Linux
 
-```powershell
-git clone https://github.com/cristake007/codex-workflow.git "$HOME\codex-workflow"
-PowerShell -ExecutionPolicy Bypass -File "$HOME\codex-workflow\install-windows.ps1"
+## Setup
+
+Clone the repository and run the same installer on Windows or Linux:
+
+```text
+git clone https://github.com/cristake007/codex-workflow.git
+cd codex-workflow
+node install.mjs
 ```
 
-The installer does not copy or move the tracked files. It creates links from Codex's expected user locations to this repository:
+The installer:
 
-- `$HOME\.codex\AGENTS.md` → `global\AGENTS.md`
-- `$HOME\.agents\skills` → `skills`
+- links `global/AGENTS.md` to the active Codex home directory;
+- links each repository skill individually into `~/.agents/skills`;
+- preserves unrelated skills already installed there;
+- installs the official Repomix Explorer skill;
+- refuses to overwrite unrelated files or skill directories.
 
-Afterwards, `git pull` updates the global instructions and skills directly.
+`CODEX_HOME` is respected when it is defined. On Windows, if a file symlink cannot be created, the installer uses a managed copy for `AGENTS.md`; rerun `node install.mjs` after `git pull` to refresh it.
 
-## Repository layout
+## Updating
+
+```text
+git pull
+node install.mjs
+```
+
+## Repository Layout
 
 ```text
 codex-workflow/
 ├── global/
 │   └── AGENTS.md
 ├── skills/
-│   └── README.md
+│   ├── README.md
+│   └── software-design/
+│       ├── SKILL.md
+│       └── references/
+│           └── engineering-constitution.md
 ├── templates/
+│   ├── AGENTS-project.md
 │   └── README.md
-├── install-windows.ps1
+├── install.mjs
 ├── .gitignore
 └── README.md
 ```
 
-The actual instructions and skills will be developed incrementally and tested against real projects.
+Global instructions contain only rules that should apply to every task. Detailed reusable workflows and reference material belong in focused skills. Project-specific facts and commands belong in the project's own `AGENTS.md`.
