@@ -27,12 +27,13 @@ The installer:
 - links each repository skill individually into `~/.agents/skills`;
 - installs the repository-managed `software-design` skill;
 - installs the official `repomix-explorer` skill from `yamadashy/repomix`;
+- configures `repomix-explorer` with `allow_implicit_invocation: false`;
 - preserves unrelated skills already installed there;
 - refuses to replace unrelated existing skill directories.
 
-A fresh clone followed by `node install.mjs` is sufficient. Repomix itself is not installed globally; the official skill runs it through `npx` only when needed.
+A fresh clone followed by `node install.mjs` is sufficient. Repomix itself is not installed globally; the official skill runs it through `npx` only when invoked explicitly.
 
-Global instructions require targeted repository inspection first and allow Repomix only when broad exploration across many unknown files or directories would be more efficient than direct search and selective reads.
+Normal repository analysis therefore uses targeted search and direct file reads. Repomix Explorer remains available manually through `$repomix-explorer`, but Codex will not select it automatically from an ordinary repository-analysis prompt.
 
 `CODEX_HOME` is respected when it is defined. Its default value is `~/.codex`.
 
@@ -45,7 +46,7 @@ git pull
 node install.mjs
 ```
 
-Files that are already identical are left unchanged and do not create unnecessary backups.
+Files that are already identical are left unchanged and do not create unnecessary backups. If Repomix Explorer already has an `agents/openai.yaml`, the installer preserves its other metadata, backs up the file before changing it, and enforces only `policy.allow_implicit_invocation: false`.
 
 ## Repository Layout
 
