@@ -14,16 +14,16 @@
 
 # ---------------------------------------------------------------------------
 # Active defaults
+#
+# Do not pin `model`, `review_model`, `model_provider`, or `service_tier` here.
+# With ChatGPT authentication, Codex should select an available account model.
+# Use `/model` inside Codex for an explicit selection when needed.
 # ---------------------------------------------------------------------------
 
-model = "gpt-5.6"
-model_provider = "openai"
-review_model = "gpt-5.6"
 model_reasoning_effort = "medium"
 plan_mode_reasoning_effort = "medium"
 model_reasoning_summary = "auto"
 model_verbosity = "medium"
-service_tier = "default"
 personality = "pragmatic"
 hide_agent_reasoning = false
 show_raw_agent_reasoning = true
@@ -41,17 +41,28 @@ network_access = true
 # Model and response behavior
 # ---------------------------------------------------------------------------
 
-# Alternative examples. Do not duplicate an active key above; replace its value.
-# model = "gpt-5.6"
+# Optional model pinning. Use only an exact identifier currently shown by
+# Codex `/model` for the authenticated account. Unsupported or stale identifiers
+# can prevent sessions from starting.
+# model = "exact-model-id-from-/model"
+#
+# `/review` uses the current session model by default. Override only when the
+# exact review model is known to be available to the current account.
+# review_model = "exact-model-id-from-/model"
+#
+# Normally omit model_provider when authenticating through ChatGPT.
 # model_provider = "openai"
-# review_model = "gpt-5.6"
+#
+# Alternative response settings. Do not duplicate an active key above; replace
+# its active value instead.
 # model_reasoning_effort = "low"
 # model_reasoning_effort = "high"
+# model_reasoning_effort = "xhigh"
 # plan_mode_reasoning_effort = "high"
 # model_reasoning_summary = "none"
 # model_verbosity = "low"
 # model_verbosity = "high"
-# service_tier = "priority"
+# service_tier = "fast"
 # service_tier = "flex"
 # personality = "none"
 # hide_agent_reasoning = true
@@ -334,7 +345,7 @@ enabled = false
 
 # [profiles.fast]
 # model_reasoning_effort = "medium"
-# service_tier = "priority"
+# service_tier = "fast"
 
 # [profiles.deep]
 # model_reasoning_effort = "high"
