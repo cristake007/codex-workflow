@@ -183,11 +183,7 @@ network_access = true
 # decide when a skill is relevant without the user naming it explicitly.
 include_instructions = true
 
-# Repository-managed architecture and context skills.
-[[skills.config]]
-name = "repository-context"
-enabled = true
-
+# Repository-managed design skill and official Repomix skill.
 [[skills.config]]
 name = "repomix-explorer"
 enabled = true
