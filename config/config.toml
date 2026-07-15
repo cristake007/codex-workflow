@@ -1,0 +1,293 @@
+# Personal Codex configuration
+#
+# Installed to:
+#   $CODEX_HOME/config.toml
+# Default CODEX_HOME:
+#   ~/.codex
+#
+# Only the small active section below is enabled initially.
+# Optional settings are grouped and commented so they can be enabled deliberately.
+# Current authoritative references:
+#   https://developers.openai.com/codex/config-basic
+#   https://developers.openai.com/codex/config-reference
+#   https://developers.openai.com/codex/config-sample
+
+# ---------------------------------------------------------------------------
+# Active defaults
+# ---------------------------------------------------------------------------
+
+approval_policy = "on-request"
+approvals_reviewer = "user"
+sandbox_mode = "workspace-write"
+web_search = "live"
+model_reasoning_effort = "high"
+personality = "pragmatic"
+file_opener = "vscode"
+
+[sandbox_workspace_write]
+network_access = true
+
+# ---------------------------------------------------------------------------
+# Model and response behavior
+# ---------------------------------------------------------------------------
+
+# model = "gpt-5.6"
+# model_provider = "openai"
+# review_model = "gpt-5.6"
+# model_reasoning_effort = "medium"
+# plan_mode_reasoning_effort = "high"
+# model_reasoning_summary = "auto"
+# model_verbosity = "medium"
+# service_tier = "fast"
+# personality = "none"
+# hide_agent_reasoning = false
+# show_raw_agent_reasoning = false
+
+# ---------------------------------------------------------------------------
+# Approval, permissions, and sandboxing
+# ---------------------------------------------------------------------------
+
+# approval_policy = "untrusted"
+# approval_policy = "never"
+# approval_policy = { granular = {
+#   sandbox_approval = true,
+#   rules = true,
+#   mcp_elicitations = true,
+#   request_permissions = true,
+#   skill_approval = true,
+# } }
+# approvals_reviewer = "auto_review"
+# sandbox_mode = "read-only"
+# sandbox_mode = "danger-full-access"
+# default_permissions = ":workspace"
+
+# [sandbox_workspace_write]
+# network_access = false
+# writable_roots = []
+# exclude_slash_tmp = false
+# exclude_tmpdir_env_var = false
+
+# [permissions.custom]
+# filesystem = "workspace-write"
+# network = "prompt"
+
+# [permissions.custom.workspace_roots]
+# "/path/to/extra/workspace" = true
+
+# ---------------------------------------------------------------------------
+# Web search and tools
+# ---------------------------------------------------------------------------
+
+# web_search = "disabled"
+# web_search = "cached"
+# web_search = "indexed"
+# web_search = "live"
+# file_opener = "vscode-insiders"
+# file_opener = "windsurf"
+# file_opener = "cursor"
+# file_opener = "none"
+
+# ---------------------------------------------------------------------------
+# Instructions and project discovery
+# ---------------------------------------------------------------------------
+
+# developer_instructions = """
+# Additional global developer instructions.
+# Prefer AGENTS.md for durable behavioral rules.
+# """
+# project_doc_max_bytes = 32768
+# project_doc_fallback_filenames = ["AGENTS.md"]
+# project_root_markers = [".git", "pyproject.toml", "package.json", "Cargo.toml", "go.mod"]
+# allow_login_shell = true
+# disable_paste_burst = false
+
+# ---------------------------------------------------------------------------
+# Shell environment
+# ---------------------------------------------------------------------------
+
+# [shell_environment_policy]
+# inherit = "core"
+# ignore_default_excludes = false
+# experimental_use_profile = false
+# include_only = []
+# exclude = []
+# set = { EXAMPLE = "value" }
+
+# ---------------------------------------------------------------------------
+# History, notifications, and interface
+# ---------------------------------------------------------------------------
+
+# notify = ["command", "arguments"]
+# disable_response_storage = false
+
+# [history]
+# persistence = "save-all"
+# max_bytes = 104857600
+
+# [tui]
+# notifications = true
+# animations = true
+# show_tooltips = true
+# vim_mode = false
+
+# ---------------------------------------------------------------------------
+# Features
+#
+# Feature flags change over time. Keep stable defaults unless a specific
+# workflow requires an override.
+# ---------------------------------------------------------------------------
+
+# [features]
+# personality = true
+# shell_tool = true
+# unified_exec = true
+# remote_plugin = true
+# skill_mcp_dependency_install = true
+# prevent_idle_sleep = false
+# rollout_budget.enabled = false
+# web_search = true
+# web_search_cached = false
+# web_search_request = false
+
+# ---------------------------------------------------------------------------
+# Skills
+# ---------------------------------------------------------------------------
+
+# [[skills.config]]
+# path = "~/.agents/skills/example"
+# enabled = true
+
+# ---------------------------------------------------------------------------
+# Subagents
+# ---------------------------------------------------------------------------
+
+# [agents]
+# max_threads = 6
+# max_depth = 1
+# job_max_runtime_seconds = 1800
+# interrupt_message = true
+
+# [agents.reviewer]
+# description = "Review code for correctness, regressions, and maintainability."
+# config_file = "agents/reviewer.toml"
+
+# ---------------------------------------------------------------------------
+# MCP servers
+# ---------------------------------------------------------------------------
+
+# [mcp_servers.example]
+# command = "npx"
+# args = ["-y", "example-mcp-server"]
+# cwd = "/path/to/project"
+# env = { EXAMPLE_TOKEN = "set-through-the-environment-instead" }
+# enabled = true
+# startup_timeout_sec = 20
+# tool_timeout_sec = 60
+# enabled_tools = []
+# disabled_tools = []
+
+# ---------------------------------------------------------------------------
+# Apps and plugins
+# ---------------------------------------------------------------------------
+
+# [apps._default]
+# enabled = true
+# approvals_reviewer = "user"
+# default_tools_approval_mode = "prompt"
+# destructive_enabled = false
+
+# [apps.example]
+# enabled = true
+
+# [plugins.example]
+# enabled = true
+
+# [plugins.example.mcp_servers.server]
+# enabled = true
+# default_tools_approval_mode = "prompt"
+# enabled_tools = []
+# disabled_tools = []
+
+# ---------------------------------------------------------------------------
+# Model providers
+# ---------------------------------------------------------------------------
+
+# [model_providers.example]
+# name = "Example provider"
+# base_url = "https://example.invalid/v1"
+# env_key = "EXAMPLE_API_KEY"
+# wire_api = "responses"
+# request_max_retries = 4
+# stream_max_retries = 5
+# stream_idle_timeout_ms = 300000
+# query_params = {}
+# http_headers = {}
+# env_http_headers = {}
+
+# [model_providers.amazon-bedrock.aws]
+# profile = "default"
+# region = "eu-central-1"
+
+# ---------------------------------------------------------------------------
+# Profiles
+# ---------------------------------------------------------------------------
+
+# [profiles.fast]
+# model_reasoning_effort = "medium"
+# service_tier = "fast"
+
+# [profiles.deep]
+# model_reasoning_effort = "high"
+# plan_mode_reasoning_effort = "high"
+
+# [profiles.read_only]
+# approval_policy = "on-request"
+# sandbox_mode = "read-only"
+
+# ---------------------------------------------------------------------------
+# Trusted projects
+# ---------------------------------------------------------------------------
+
+# [projects."/absolute/path/to/project"]
+# trust_level = "trusted"
+
+# ---------------------------------------------------------------------------
+# Authentication and workspace restrictions
+# ---------------------------------------------------------------------------
+
+# forced_login_method = "chatgpt"
+# forced_chatgpt_workspace_id = "00000000-0000-0000-0000-000000000000"
+
+# ---------------------------------------------------------------------------
+# Feedback and analytics
+# ---------------------------------------------------------------------------
+
+# [feedback]
+# enabled = true
+
+# [analytics]
+# enabled = true
+
+# ---------------------------------------------------------------------------
+# OpenTelemetry
+# ---------------------------------------------------------------------------
+
+# [otel]
+# environment = "development"
+# exporter = "none"
+# log_user_prompt = false
+
+# [otel.exporter.otlp-http]
+# endpoint = "https://example.invalid/v1/logs"
+# headers = {}
+
+# [otel.exporter.otlp-grpc]
+# endpoint = "https://example.invalid:4317"
+# headers = {}
+
+# ---------------------------------------------------------------------------
+# Windows
+# ---------------------------------------------------------------------------
+
+# [windows]
+# sandbox = "elevated"
