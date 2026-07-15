@@ -6,9 +6,8 @@ import {
   readFile,
   readdir,
   realpath,
-  stat,
   symlink,
-  writeFile,
+  unlink,
 } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import path from 'node:path';
@@ -19,9 +18,28 @@ const isWindows = process.platform === 'win32';
 const repoRoot = path.dirname(fileURLToPath(import.meta.url));
 const homeDir = homedir();
 const codexHome = path.resolve(process.env.CODEX_HOME || path.join(homeDir, '.codex'));
-const globalAgentsSource = path.join(repoRoot, 'global', 'AGENTS.md');
-const globalAgentsTarget = path.join(codexHome, 'AGENTS.md');
-const agentsCopyMarker = path.join(codexHome, '.codex-workflow-agents.json');
+
+const managedFiles = [
+  {
+    label: 'Global AGENTS.md',
+    source: path.join(repoRoot, 'global', 'AGENTS.md'),
+    target: path.join(codexHome, 'AGENTS.md'),
+    relativeBackupPath: 'AGENTS.md',
+  },
+  {
+    label: 'Codex config.toml',
+    source: path.join(repoRoot, 'config', 'config.toml'),
+    target: path.join(codexHome, 'config.toml'),
+    relativeBackupPath: 'config.toml',
+  },
+  {
+    label: 'Codex default.rules',
+    source: path.join(repoRoot, 'rules', 'default.rules'),
+    target: path.join(codexHome, 'rules', 'default.rules'),
+    relativeBackupPath: path.join('rules', 'default.rules'),
+  },
+];
+
 const skillsSourceRoot = path.join(repoRoot, 'skills');
 const userSkillsRoot = path.join(homeDir, '.agents', 'skills');
 
@@ -52,13 +70,32 @@ async function resolvesTo(target, source) {
   }
 }
 
-async function isSameFile(target, source) {
+async function filesEqual(first, second) {
   try {
-    const [targetStat, sourceStat] = await Promise.all([stat(target), stat(source)]);
-    return targetStat.dev === sourceStat.dev && targetStat.ino === sourceStat.ino;
+    const [firstContent, secondContent] = await Promise.all([
+      readFile(first),
+      readFile(second),
+    ]);
+    return firstContent.equals(secondContent);
   } catch {
     return false;
   }
+}
+
+function timestamp() {
+  const now = new Date();
+  const pad = (value) => String(value).padStart(2, '0');
+  return [
+    now.getFullYear(),
+    pad(now.getMonth() + 1),
+    pad(now.getDate()),
+    '-',
+    pad(now.getHours()),
+    pad(now.getMinutes()),
+    pad(now.getSeconds()),
+    '-',
+    String(now.getMilliseconds()).padStart(3, '0'),
+  ].join('');
 }
 
 function checkRuntime() {
@@ -76,58 +113,69 @@ function checkRuntime() {
 }
 
 async function validateSources() {
-  if (!(await exists(globalAgentsSource))) {
-    fail(`Missing global instructions: ${globalAgentsSource}`);
+  for (const file of managedFiles) {
+    if (!(await exists(file.source))) {
+      fail(`Missing source file: ${file.source}`);
+    }
   }
+
   if (!(await exists(skillsSourceRoot))) {
     fail(`Missing skills directory: ${skillsSourceRoot}`);
   }
 }
 
-async function readManagedCopyMarker() {
-  if (!(await exists(agentsCopyMarker))) return null;
-  try {
-    return JSON.parse(await readFile(agentsCopyMarker, 'utf8'));
-  } catch {
-    fail(`Invalid installer marker: ${agentsCopyMarker}`);
-  }
-}
-
-async function writeManagedAgentsCopy() {
-  await copyFile(globalAgentsSource, globalAgentsTarget);
-  await writeFile(
-    agentsCopyMarker,
-    `${JSON.stringify({ source: path.resolve(globalAgentsSource), mode: 'managed-copy' }, null, 2)}\n`,
-    'utf8',
-  );
-  info(`Global AGENTS.md installed as a managed copy: ${globalAgentsTarget}`);
-  info('Windows could not create a file symlink. Re-run node install.mjs after git pull to refresh the copy.');
-}
-
-async function installGlobalAgents() {
+async function installManagedFiles() {
   await mkdir(codexHome, { recursive: true });
 
-  if (await exists(globalAgentsTarget)) {
-    if ((await resolvesTo(globalAgentsTarget, globalAgentsSource)) || (await isSameFile(globalAgentsTarget, globalAgentsSource))) {
-      info(`Global AGENTS.md already linked: ${globalAgentsTarget}`);
-      return;
+  const changedFiles = [];
+  for (const file of managedFiles) {
+    if (!(await exists(file.target))) {
+      changedFiles.push(file);
+      continue;
     }
 
-    const marker = await readManagedCopyMarker();
-    if (marker?.mode === 'managed-copy' && path.resolve(marker.source) === path.resolve(globalAgentsSource)) {
-      await writeManagedAgentsCopy();
-      return;
+    if (await filesEqual(file.source, file.target)) {
+      info(`${file.label} is already current: ${file.target}`);
+      continue;
     }
 
-    fail(`Refusing to replace unrelated existing path: ${globalAgentsTarget}`);
+    changedFiles.push(file);
   }
 
-  try {
-    await symlink(globalAgentsSource, globalAgentsTarget, 'file');
-    info(`Global AGENTS.md linked: ${globalAgentsTarget}`);
-  } catch (error) {
-    if (!isWindows) throw error;
-    await writeManagedAgentsCopy();
+  if (changedFiles.length === 0) return;
+
+  const backupRoot = path.join(codexHome, 'backups', timestamp());
+  let createdBackup = false;
+
+  for (const file of changedFiles) {
+    if (await exists(file.target)) {
+      const backupTarget = path.join(backupRoot, file.relativeBackupPath);
+      await mkdir(path.dirname(backupTarget), { recursive: true });
+      await copyFile(file.target, backupTarget);
+      info(`Backed up ${file.target} -> ${backupTarget}`);
+      createdBackup = true;
+    }
+  }
+
+  for (const file of changedFiles) {
+    await mkdir(path.dirname(file.target), { recursive: true });
+
+    if (await exists(file.target)) {
+      const targetStat = await lstat(file.target);
+      if (targetStat.isDirectory() && !targetStat.isSymbolicLink()) {
+        fail(`Refusing to replace directory with managed file: ${file.target}`);
+      }
+      if (targetStat.isSymbolicLink()) {
+        await unlink(file.target);
+      }
+    }
+
+    await copyFile(file.source, file.target);
+    info(`${file.label} installed: ${file.target}`);
+  }
+
+  if (createdBackup) {
+    info(`Backup completed: ${backupRoot}`);
   }
 }
 
@@ -215,31 +263,18 @@ async function installRepomixExplorer() {
     return;
   }
 
-  const possibleSources = [
-    path.join(codexHome, 'skills', 'repomix-explorer'),
-    path.join(homeDir, '.codex', 'skills', 'repomix-explorer'),
-  ];
-
-  for (const source of possibleSources) {
-    if (await exists(path.join(source, 'SKILL.md'))) {
-      await linkSkillDirectory('repomix-explorer', source);
-      info('Repomix Explorer installed and linked into the current Codex user-skill location.');
-      return;
-    }
-  }
-
   fail('Repomix Explorer installation completed, but its SKILL.md could not be located.');
 }
 
 async function main() {
   checkRuntime();
   await validateSources();
-  await installGlobalAgents();
+  await installManagedFiles();
   await installRepositorySkills();
   await installRepomixExplorer();
 
-  info('Installation complete. Restart Codex if newly installed skills do not appear immediately.');
-  info(`Global instructions: ${globalAgentsTarget}`);
+  info('Installation complete. Restart Codex so the new configuration and rules are loaded.');
+  info(`Codex home: ${codexHome}`);
   info(`User skills: ${userSkillsRoot}`);
 }
 
