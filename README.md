@@ -25,14 +25,14 @@ The installer:
 - copies `rules/default.rules` to `$CODEX_HOME/rules/default.rules`;
 - creates a timestamped backup under `$CODEX_HOME/backups/` before replacing a different existing managed file;
 - links each repository skill individually into `~/.agents/skills`;
-- installs the repository-managed `software-design` and `repository-context` skills;
+- installs the repository-managed `software-design` skill;
 - installs the official `repomix-explorer` skill from `yamadashy/repomix`;
 - preserves unrelated skills already installed there;
 - refuses to replace unrelated existing skill directories.
 
-A fresh clone followed by `node install.mjs` is sufficient. Repomix itself is not installed globally; the skills run it through `npx` only when needed.
+A fresh clone followed by `node install.mjs` is sufficient. Repomix itself is not installed globally; the official skill runs it through `npx` only when needed.
 
-`repository-context` controls when Repomix should be used and enforces metadata-first discovery, targeted include patterns, temporary output, security checks, and a 40,000-token limit. `repomix-explorer` provides the official repository analysis workflow.
+Global instructions require targeted repository inspection first and allow Repomix only when broad exploration across many unknown files or directories would be more efficient than direct search and selective reads.
 
 `CODEX_HOME` is respected when it is defined. Its default value is `~/.codex`.
 
@@ -59,8 +59,6 @@ codex-workflow/
 │   └── default.rules
 ├── skills/
 │   ├── README.md
-│   ├── repository-context/
-│   │   └── SKILL.md
 │   └── software-design/
 │       ├── SKILL.md
 │       └── references/
