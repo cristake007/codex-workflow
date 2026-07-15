@@ -17,6 +17,15 @@
 - Prefer the simplest maintainable solution consistent with the project.
 - Comments must describe non-obvious behavior, not the process used to create the code.
 
+## Repository Inspection
+
+- Start with targeted search and direct file reads.
+- Read only the files and line ranges needed to answer the request; do not dump whole files or inspect every tracked file by default.
+- Use Repomix only when the task spans many unknown files or directories and direct inspection is becoming inefficient.
+- Do not use Repomix for small repositories, known paths, isolated changes, routine configuration work, or ordinary read-only explanations.
+- Do not load a skill merely to decide whether another skill or tool should be used.
+- Stop inspecting once every requested conclusion has sufficient evidence.
+
 ## Software Design Principles
 
 - Solve the current requirement and declared non-goals, not speculative future problems.
