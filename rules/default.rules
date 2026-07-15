@@ -1,0 +1,106 @@
+# Personal Codex command rules
+#
+# Installed to:
+#   $CODEX_HOME/rules/default.rules
+#
+# Rules control commands Codex requests to run outside the sandbox.
+# They complement AGENTS.md; they do not replace repository permissions,
+# branch protection, backups, or operating-system security controls.
+
+# Ask before publishing local work.
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "prompt",
+    justification = "Review the branch and commits before publishing them.",
+    match = [
+        "git push",
+        "git push origin main",
+        "git push -u origin dev",
+    ],
+)
+
+# Never allow an automatic destructive Git reset.
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Use a safety branch or request an explicit recovery procedure.",
+    match = [
+        "git reset --hard",
+        "git reset --hard HEAD~1",
+    ],
+)
+
+# Never remove every untracked and ignored file automatically.
+prefix_rule(
+    pattern = ["git", "clean", "-fdx"],
+    decision = "forbidden",
+    justification = "Inspect untracked files and remove only explicitly selected paths.",
+    match = [
+        "git clean -fdx",
+    ],
+)
+
+# Ask before rewriting remote history.
+prefix_rule(
+    pattern = ["git", "push", "--force"],
+    decision = "prompt",
+    justification = "Force-pushing can discard remote work and requires explicit review.",
+    match = [
+        "git push --force",
+        "git push --force origin main",
+    ],
+)
+
+# Ask before pruning Docker resources.
+prefix_rule(
+    pattern = ["docker", "system", "prune"],
+    decision = "prompt",
+    justification = "Docker pruning may remove resources used by other projects.",
+    match = [
+        "docker system prune",
+        "docker system prune -a",
+    ],
+)
+
+# Ask before deleting Docker volumes in bulk.
+prefix_rule(
+    pattern = ["docker", "volume", "prune"],
+    decision = "prompt",
+    justification = "Docker volumes may contain persistent application data.",
+    match = [
+        "docker volume prune",
+        "docker volume prune -f",
+    ],
+)
+
+# Ask before destructive database administration commands.
+prefix_rule(
+    pattern = ["dropdb"],
+    decision = "prompt",
+    justification = "Dropping a database is destructive and difficult to recover.",
+    match = [
+        "dropdb example",
+        "dropdb --if-exists example",
+    ],
+)
+
+# Ask before broad recursive deletion on Unix-like systems.
+prefix_rule(
+    pattern = ["rm", "-rf"],
+    decision = "prompt",
+    justification = "Recursive forced deletion must be reviewed before execution.",
+    match = [
+        "rm -rf build",
+        "rm -rf /tmp/example",
+    ],
+)
+
+# Ask before broad recursive deletion through Windows cmd.
+prefix_rule(
+    pattern = ["cmd", "/c", "rmdir", "/s"],
+    decision = "prompt",
+    justification = "Recursive directory deletion must be reviewed before execution.",
+    match = [
+        "cmd /c rmdir /s /q build",
+    ],
+)
