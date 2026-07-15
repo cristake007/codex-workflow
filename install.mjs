@@ -42,6 +42,7 @@ const managedFiles = [
 
 const skillsSourceRoot = path.join(repoRoot, 'skills');
 const userSkillsRoot = path.join(homeDir, '.agents', 'skills');
+const retiredRepositorySkills = ['repository-context'];
 
 function info(message) {
   console.log(`[codex-workflow] ${message}`);
@@ -209,6 +210,24 @@ async function linkSkillDirectory(name, source) {
   info(`Skill linked: ${name}`);
 }
 
+async function removeRetiredRepositorySkillLinks() {
+  await mkdir(userSkillsRoot, { recursive: true });
+
+  for (const name of retiredRepositorySkills) {
+    const target = path.join(userSkillsRoot, name);
+    if (!(await exists(target))) continue;
+
+    const targetStat = await lstat(target);
+    if (!targetStat.isSymbolicLink()) {
+      info(`Retired skill left untouched because it is not a managed link: ${target}`);
+      continue;
+    }
+
+    await unlink(target);
+    info(`Retired repository skill link removed: ${name}`);
+  }
+}
+
 async function installRepositorySkills() {
   await mkdir(userSkillsRoot, { recursive: true });
   const skills = await listRepositorySkills();
@@ -270,6 +289,7 @@ async function main() {
   checkRuntime();
   await validateSources();
   await installManagedFiles();
+  await removeRetiredRepositorySkillLinks();
   await installRepositorySkills();
   await installRepomixExplorer();
 
