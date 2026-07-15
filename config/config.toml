@@ -5,8 +5,8 @@
 # Default CODEX_HOME:
 #   ~/.codex
 #
-# Only the small active section below is enabled initially.
-# Optional settings are grouped and commented so they can be enabled deliberately.
+# Active personal defaults are enabled below. Optional settings remain commented
+# so they can be enabled deliberately.
 # Current authoritative references:
 #   https://developers.openai.com/codex/config-basic
 #   https://developers.openai.com/codex/config-reference
@@ -16,12 +16,22 @@
 # Active defaults
 # ---------------------------------------------------------------------------
 
+model = "gpt-5.6"
+model_provider = "openai"
+review_model = "gpt-5.6"
+model_reasoning_effort = "medium"
+plan_mode_reasoning_effort = "medium"
+model_reasoning_summary = "auto"
+model_verbosity = "medium"
+service_tier = "default"
+personality = "pragmatic"
+hide_agent_reasoning = false
+show_raw_agent_reasoning = true
+
 approval_policy = "on-request"
 approvals_reviewer = "user"
 sandbox_mode = "workspace-write"
 web_search = "live"
-model_reasoning_effort = "high"
-personality = "pragmatic"
 file_opener = "vscode"
 
 [sandbox_workspace_write]
@@ -31,16 +41,20 @@ network_access = true
 # Model and response behavior
 # ---------------------------------------------------------------------------
 
+# Alternative examples. Do not duplicate an active key above; replace its value.
 # model = "gpt-5.6"
 # model_provider = "openai"
 # review_model = "gpt-5.6"
-# model_reasoning_effort = "medium"
+# model_reasoning_effort = "low"
+# model_reasoning_effort = "high"
 # plan_mode_reasoning_effort = "high"
-# model_reasoning_summary = "auto"
-# model_verbosity = "medium"
-# service_tier = "fast"
+# model_reasoning_summary = "none"
+# model_verbosity = "low"
+# model_verbosity = "high"
+# service_tier = "priority"
+# service_tier = "flex"
 # personality = "none"
-# hide_agent_reasoning = false
+# hide_agent_reasoning = true
 # show_raw_agent_reasoning = false
 
 # ---------------------------------------------------------------------------
@@ -153,9 +167,95 @@ network_access = true
 # Skills
 # ---------------------------------------------------------------------------
 
+[skills]
+# Keep the automatic skill-discovery instructions available to Codex so it can
+# decide when a skill is relevant without the user naming it explicitly.
+include_instructions = true
+
+# Repository-managed architecture and context skills.
+[[skills.config]]
+name = "repository-context"
+enabled = true
+
+[[skills.config]]
+name = "repomix-explorer"
+enabled = true
+
+[[skills.config]]
+name = "software-design"
+enabled = true
+
+# Useful GitHub workflow skills kept enabled explicitly.
+[[skills.config]]
+name = "GitHub"
+enabled = true
+
+[[skills.config]]
+name = "CI Debug"
+enabled = true
+
+[[skills.config]]
+name = "Review Follow-up"
+enabled = true
+
+[[skills.config]]
+name = "Publish Changes"
+enabled = true
+
+# Examples of optional bundled skills disabled by default for this coding setup.
+# They remain installed and can be re-enabled from config.toml or the Skills UI.
+[[skills.config]]
+name = "Gmail"
+enabled = false
+
+[[skills.config]]
+name = "Inbox Triage"
+enabled = false
+
+[[skills.config]]
+name = "Analytics Dashboard"
+enabled = false
+
+[[skills.config]]
+name = "Business Review"
+enabled = false
+
+[[skills.config]]
+name = "Design Report"
+enabled = false
+
+[[skills.config]]
+name = "Experiment Analysis"
+enabled = false
+
+[[skills.config]]
+name = "Financial Budget"
+enabled = false
+
+[[skills.config]]
+name = "Investment Committee Memo"
+enabled = false
+
+[[skills.config]]
+name = "Legal Memorandum"
+enabled = false
+
+[[skills.config]]
+name = "Market Trends Report"
+enabled = false
+
+# Alternative controls:
+#
+# Disable every bundled skill at once. This may also hide useful built-in skills,
+# so individual entries above are safer for the normal coding workflow.
+# [skills.bundled]
+# enabled = false
+#
+# A skill can also be selected by the absolute path to its SKILL.md. Use either
+# `name` or `path` in one entry, never both.
 # [[skills.config]]
-# path = "~/.agents/skills/example"
-# enabled = true
+# path = "C:/Users/Example/.agents/skills/example/SKILL.md"
+# enabled = false
 
 # ---------------------------------------------------------------------------
 # Subagents
@@ -234,7 +334,7 @@ network_access = true
 
 # [profiles.fast]
 # model_reasoning_effort = "medium"
-# service_tier = "fast"
+# service_tier = "priority"
 
 # [profiles.deep]
 # model_reasoning_effort = "high"
