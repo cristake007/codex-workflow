@@ -3,32 +3,32 @@ name: repository-context
 description: >
   Decide whether a repository is large or structurally complex enough to justify
   Repomix before architecture work, broad bug investigation, major feature work,
-  or cross-file refactoring. Prefer direct inspection for small repositories,
-  known paths, isolated edits, and tasks answerable with a few targeted searches.
-  Use Repomix only when manual exploration across many files or directories would
-  be slower and less reliable.
+  or cross-file refactoring. Prefer fast, targeted direct inspection for small
+  repositories, known paths, isolated edits, and tasks answerable with a few
+  searches. Use Repomix only when exploration across many files or directories
+  would be demonstrably slower and less reliable.
 ---
 
 # Repository Context
 
-Use direct repository inspection first. Repomix is an escalation tool for broad or unclear codebases, not the default first step.
+Use the cheapest reliable inspection method. Direct repository inspection is the default. Repomix is an escalation tool for broad or unclear codebases, not a mandatory repository-analysis phase.
 
 ## Decision gate
 
 Before running Repomix:
 
 1. Check the working tree and applicable repository instructions.
-2. List tracked files and inspect the top-level structure.
-3. Estimate whether the task can be answered with at most five targeted searches or file reads.
-4. Identify whether the relevant paths are already known.
+2. Count tracked files and inspect the top-level structure.
+3. Identify the likely entry points and files directly relevant to the request.
+4. Estimate whether the task can be answered with at most five targeted searches or a small number of selective file reads.
 
 Do not use Repomix when any of these are true:
 
 - fewer than 100 relevant tracked files exist;
-- the repository is small enough to understand from its top-level structure and a few direct reads;
+- the repository is small enough to understand from its top-level structure and selective reads;
 - the task concerns a known file, path, symbol, or isolated component;
-- the relevant scope is likely fewer than about 10 files;
-- one to five targeted searches or reads are sufficient;
+- the likely relevant scope is fewer than about 10 files;
+- one to five targeted searches are sufficient to locate the evidence;
 - the task is routine Git, test, build, installation, or configuration work;
 - starting Repomix is likely slower than direct inspection.
 
@@ -36,24 +36,34 @@ Use Repomix only when one or more of these are true:
 
 - the repository is unfamiliar and structurally broad;
 - relevant code spans many directories or modules;
-- ownership, execution flow, or dependencies remain unclear after initial direct inspection;
+- ownership, execution flow, or dependencies remain unclear after initial targeted inspection;
 - a major feature or refactor requires a cross-cutting architecture map;
 - a broad bug investigation would otherwise require repeated exploratory reads;
 - the user explicitly requests Repomix or a packed repository map.
 
-If Repomix is not justified, continue silently with direct inspection. Do not explain that it was skipped unless the distinction is useful to the final answer.
+If Repomix is not justified, continue silently with direct inspection. Do not announce that it was skipped unless tool selection is relevant to the answer.
 
-## Direct-inspection workflow
+## Fast direct-inspection workflow
 
 For small or clear repositories:
 
-1. Use `git ls-files` or an equivalent tracked-file listing.
-2. Inspect only the entry points, configuration files, and modules relevant to the request.
-3. Prefer `rg` or equivalent targeted search before opening full files.
-4. Stop once the evidence is sufficient.
-5. Do not run tests, syntax checks, policy simulations, configuration parsers, or other validations for a read-only explanation unless:
-   - the user explicitly requests validation; or
-   - a specific claim cannot be established reliably by reading the source.
+1. List tracked files and inspect the top-level structure once.
+2. Start with the README, the primary executable entry point, and only the configuration or policy files needed for the request.
+3. Use targeted search to locate exact functions, constants, sections, or paths before reading file contents.
+4. Read relevant line ranges from long files. Do not print or read whole files merely because they are small enough to fit.
+5. Begin with no more than six primary files. Reassess before opening additional files.
+6. Do not read every tracked file and do not recursively enumerate an entire skill, template, reference, or documentation tree.
+7. Do not load another skill's `SKILL.md` unless that skill will actually be used for the task.
+8. Do not read supporting references, templates, examples, `.gitignore`, or historical files unless they directly support a requested conclusion.
+9. Stop immediately when every part of the request has sufficient source evidence.
+
+For read-only repository explanations:
+
+- do not create or update a plan unless the task is genuinely complex;
+- do not run tests, syntax checks, policy simulations, configuration parsers, installers, builds, or dependency commands unless the user explicitly requests validation or a specific claim cannot be established reliably from source;
+- do not investigate unrelated working-tree differences beyond noting that they exist when relevant;
+- keep the final explanation proportional to the repository size and the user's requested depth;
+- avoid repeating the same evidence across multiple sections.
 
 ## Repomix workflow
 
