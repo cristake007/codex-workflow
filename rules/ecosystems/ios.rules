@@ -1,0 +1,43 @@
+# Apple platform and iOS project command rules
+# Copy into <repo>/.codex/rules/ only when an Apple platform ecosystem is active.
+
+prefix_rule(
+    pattern = ["pod", ["install", "update"]],
+    decision = "prompt",
+    justification = "CocoaPods operations can change dependencies, workspace state, and lockfiles.",
+    match = [
+        "pod install",
+        "pod update",
+    ],
+)
+
+prefix_rule(
+    pattern = ["swift", "package", ["update", "resolve", "reset"]],
+    decision = "prompt",
+    justification = "Swift Package Manager operations can change resolved dependencies or local package state.",
+    match = [
+        "swift package update",
+        "swift package resolve",
+        "swift package reset",
+    ],
+)
+
+prefix_rule(
+    pattern = ["xcodebuild"],
+    decision = "prompt",
+    justification = "Xcode builds may use project signing, provisioning, archive, or destination settings that require review.",
+    match = [
+        "xcodebuild build",
+        "xcodebuild archive -allowProvisioningUpdates",
+    ],
+)
+
+prefix_rule(
+    pattern = ["fastlane"],
+    decision = "prompt",
+    justification = "Fastlane lanes may sign, publish, upload, or change remote release state.",
+    match = [
+        "fastlane beta",
+        "fastlane release",
+    ],
+)

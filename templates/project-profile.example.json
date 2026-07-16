@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "mode": "existing",
+  "ecosystems": [
+    "php",
+    "javascript",
+    "docker"
+  ],
+  "detectedEcosystems": [
+    "php",
+    "javascript",
+    "docker"
+  ],
+  "detectedMarkers": [
+    "composer.json",
+    "compose.yaml",
+    "package.json"
+  ]
+}

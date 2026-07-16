@@ -1,0 +1,62 @@
+# JavaScript and TypeScript project command rules
+# Copy into <repo>/.codex/rules/ only when JavaScript or TypeScript is active.
+
+prefix_rule(
+    pattern = ["npm", ["install", "uninstall", "update"]],
+    decision = "prompt",
+    justification = "npm dependency operations can modify installed packages, manifests, and lockfiles.",
+    match = [
+        "npm install",
+        "npm install package-name",
+        "npm uninstall package-name",
+        "npm update",
+    ],
+)
+
+prefix_rule(
+    pattern = ["pnpm", ["install", "add", "remove", "update"]],
+    decision = "prompt",
+    justification = "pnpm dependency operations can modify installed packages, manifests, and lockfiles.",
+    match = [
+        "pnpm install",
+        "pnpm add package-name",
+        "pnpm remove package-name",
+        "pnpm update",
+    ],
+)
+
+prefix_rule(
+    pattern = ["yarn", ["install", "add", "remove", "upgrade"]],
+    decision = "prompt",
+    justification = "Yarn dependency operations can modify installed packages, manifests, and lockfiles.",
+    match = [
+        "yarn install",
+        "yarn add package-name",
+        "yarn remove package-name",
+        "yarn upgrade",
+    ],
+)
+
+prefix_rule(
+    pattern = ["bun", ["install", "add", "remove", "update"]],
+    decision = "prompt",
+    justification = "Bun dependency operations can modify installed packages, manifests, and lockfiles.",
+    match = [
+        "bun install",
+        "bun add package-name",
+        "bun remove package-name",
+        "bun update",
+    ],
+)
+
+prefix_rule(
+    pattern = [["npm", "pnpm", "yarn", "bun"], "publish"],
+    decision = "prompt",
+    justification = "Publishing releases a package to a remote registry.",
+    match = [
+        "npm publish",
+        "pnpm publish",
+        "yarn publish",
+        "bun publish",
+    ],
+)

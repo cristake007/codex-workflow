@@ -1,0 +1,32 @@
+# Shell project command rules
+# Copy into <repo>/.codex/rules/ only when shell scripting is an active ecosystem.
+
+prefix_rule(
+    pattern = [["bash", "sh"], "-n"],
+    decision = "allow",
+    justification = "Shell syntax validation does not execute the script body.",
+    match = [
+        "bash -n scripts/install.sh",
+        "sh -n scripts/check.sh",
+    ],
+)
+
+prefix_rule(
+    pattern = ["chmod", ["+x", "-R"]],
+    decision = "prompt",
+    justification = "Permission changes affect how files can be executed or accessed.",
+    match = [
+        "chmod +x scripts/install.sh",
+        "chmod -R 755 scripts",
+    ],
+)
+
+prefix_rule(
+    pattern = [["bash", "sh"], "-c"],
+    decision = "prompt",
+    justification = "Inline shell programs can combine multiple actions and require review.",
+    match = [
+        "bash -c echo hello",
+        "sh -c ./scripts/install.sh",
+    ],
+)
