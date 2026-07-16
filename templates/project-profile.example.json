@@ -1,19 +1,10 @@
 {
-  "version": 1,
+  "version": 2,
   "mode": "existing",
-  "ecosystems": [
-    "php",
-    "javascript",
-    "docker"
-  ],
-  "detectedEcosystems": [
-    "php",
-    "javascript",
-    "docker"
-  ],
-  "detectedMarkers": [
-    "composer.json",
-    "compose.yaml",
-    "package.json"
-  ]
+  "ecosystems": ["php", "javascript", "docker"],
+  "capabilities": ["linux", "application-security", "server-security"],
+  "detectedEcosystems": ["php", "javascript", "docker"],
+  "detectedMarkers": ["composer.json", "package.json", "compose.yaml"],
+  "detectedCapabilities": ["linux", "application-security"],
+  "detectedCapabilityMarkers": ["ansible.cfg", "SECURITY.md"]
 }
