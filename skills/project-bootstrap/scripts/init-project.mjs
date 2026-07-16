@@ -1,5 +1,4 @@
 import {
-  copyFile,
   lstat,
   mkdir,
   readFile,
@@ -39,6 +38,9 @@ const genericRootNames = new Set([
   '.gitignore',
   '.gitattributes',
   '.github',
+  '.codex',
+  'AGENTS.md',
+  'AGENTS.override.md',
   '.DS_Store',
   'README',
   'README.md',

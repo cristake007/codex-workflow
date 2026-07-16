@@ -50,3 +50,38 @@ prefix_rule(
         "alembic downgrade -1",
     ],
 )
+
+
+prefix_rule(
+    pattern = ["poetry", ["install", "add", "remove", "update"]],
+    decision = "prompt",
+    justification = "Poetry dependency operations can modify the environment, manifest, and lockfile.",
+    match = [
+        "poetry install",
+        "poetry add package-name",
+        "poetry remove package-name",
+        "poetry update",
+    ],
+)
+
+prefix_rule(
+    pattern = ["uv", ["sync", "add", "remove"]],
+    decision = "prompt",
+    justification = "uv dependency operations can modify the environment, manifest, and lockfile.",
+    match = [
+        "uv sync",
+        "uv add package-name",
+        "uv remove package-name",
+    ],
+)
+
+prefix_rule(
+    pattern = ["pipenv", ["install", "uninstall", "update"]],
+    decision = "prompt",
+    justification = "Pipenv dependency operations can modify the environment, manifest, and lockfile.",
+    match = [
+        "pipenv install",
+        "pipenv uninstall package-name",
+        "pipenv update",
+    ],
+)

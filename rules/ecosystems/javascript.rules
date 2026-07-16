@@ -2,10 +2,11 @@
 # Copy into <repo>/.codex/rules/ only when JavaScript or TypeScript is active.
 
 prefix_rule(
-    pattern = ["npm", ["install", "uninstall", "update"]],
+    pattern = ["npm", ["ci", "install", "uninstall", "update"]],
     decision = "prompt",
     justification = "npm dependency operations can modify installed packages, manifests, and lockfiles.",
     match = [
+        "npm ci",
         "npm install",
         "npm install package-name",
         "npm uninstall package-name",
