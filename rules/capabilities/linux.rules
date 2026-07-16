@@ -28,18 +28,17 @@ prefix_rule(
 )
 
 prefix_rule(
-    pattern = [["journalctl", "ss", "getent"]],
+    pattern = [["ss", "getent"]],
     decision = "allow",
-    justification = "These commands inspect logs, sockets, and system name-service data.",
+    justification = "These commands inspect sockets and system name-service data.",
     match = [
-        "journalctl -u nginx -n 100 --no-pager",
         "ss -lntup",
         "getent hosts example.com",
     ],
 )
 
 prefix_rule(
-    pattern = ["ip", ["addr", "address", "route", "link"]],
+    pattern = ["ip", ["addr", "address", "route", "link"], ["show", "list"]],
     decision = "allow",
     justification = "These ip commands inspect interface and routing state.",
     match = [
@@ -71,14 +70,24 @@ prefix_rule(
 )
 
 prefix_rule(
-    pattern = [["dnf", "yum", "zypper", "apk", "pacman"], ["install", "add", "remove", "erase", "upgrade", "update"]],
+    pattern = [["dnf", "yum", "zypper", "apk"], ["install", "add", "remove", "erase", "upgrade", "update"]],
     decision = "prompt",
     justification = "Package operations can change services, dependencies, and the operating system.",
     match = [
         "dnf install package-name",
         "yum remove package-name",
         "apk add package-name",
+    ],
+)
+
+prefix_rule(
+    pattern = ["pacman", ["-S", "-R", "-Syu"]],
+    decision = "prompt",
+    justification = "Pacman operations can install, remove, or broadly upgrade operating-system packages.",
+    match = [
         "pacman -S package-name",
+        "pacman -R package-name",
+        "pacman -Syu",
     ],
 )
 
@@ -105,7 +114,7 @@ prefix_rule(
 )
 
 prefix_rule(
-    pattern = [["mount", "umount", "swapon", "swapoff", "fsck", "mkfs", "wipefs", "fdisk", "parted"]],
+    pattern = [["mount", "umount", "swapon", "swapoff", "fsck", "mkfs", "mkfs.ext4", "mkfs.xfs", "mkfs.btrfs", "wipefs", "fdisk", "parted"]],
     decision = "prompt",
     justification = "Storage and filesystem commands can cause downtime or irreversible data loss.",
     match = [

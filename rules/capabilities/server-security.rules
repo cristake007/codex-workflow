@@ -2,14 +2,22 @@
 # Copy into <repo>/.codex/rules/ only when server-security is selected.
 
 prefix_rule(
-    pattern = [["sshd", "nginx", "apachectl", "httpd"]],
+    pattern = [["sshd", "nginx", "httpd"], "-t"],
     decision = "allow",
-    justification = "Configuration test modes are read-only when invoked with their validation arguments.",
+    justification = "These invocations validate configuration without applying it.",
     match = [
         "sshd -t",
         "nginx -t",
-        "apachectl configtest",
         "httpd -t",
+    ],
+)
+
+prefix_rule(
+    pattern = ["apachectl", "configtest"],
+    decision = "allow",
+    justification = "Apache configuration validation does not apply changes.",
+    match = [
+        "apachectl configtest",
     ],
 )
 
@@ -19,35 +27,6 @@ prefix_rule(
     justification = "Firewall status inspection does not change policy.",
     match = [
         "ufw status verbose",
-    ],
-)
-
-prefix_rule(
-    pattern = ["firewall-cmd", ["--state", "--list-all", "--list-services", "--list-ports"]],
-    decision = "allow",
-    justification = "These firewall-cmd operations inspect current firewalld state.",
-    match = [
-        "firewall-cmd --state",
-        "firewall-cmd --list-all",
-    ],
-)
-
-prefix_rule(
-    pattern = ["nft", "list"],
-    decision = "allow",
-    justification = "Listing nftables state is read-only.",
-    match = [
-        "nft list ruleset",
-    ],
-)
-
-prefix_rule(
-    pattern = ["iptables", ["-S", "-L"]],
-    decision = "allow",
-    justification = "These iptables commands inspect current rules.",
-    match = [
-        "iptables -S",
-        "iptables -L -n -v",
     ],
 )
 
@@ -62,14 +41,26 @@ prefix_rule(
 )
 
 prefix_rule(
-    pattern = [["ufw", "firewall-cmd", "iptables", "ip6tables", "nft"]],
+    pattern = ["ufw", ["enable", "disable", "allow", "deny", "reject", "delete", "reset", "reload", "default", "route"]],
     decision = "prompt",
     justification = "Firewall changes can expose services or lock out remote administration.",
     match = [
         "ufw enable",
         "ufw allow 22/tcp",
+        "ufw delete allow 80/tcp",
+    ],
+)
+
+prefix_rule(
+    pattern = [["firewall-cmd", "iptables", "ip6tables", "nft"]],
+    decision = "prompt",
+    justification = "Firewall commands require review because they can change policy or lock out remote administration.",
+    match = [
+        "firewall-cmd --list-all",
         "firewall-cmd --add-service=https --permanent",
+        "iptables -S",
         "iptables -A INPUT -p tcp --dport 22 -j ACCEPT",
+        "nft list ruleset",
         "nft add rule inet filter input tcp dport 22 accept",
     ],
 )
@@ -107,9 +98,9 @@ prefix_rule(
 )
 
 prefix_rule(
-    pattern = ["systemctl", ["restart", "reload", "stop"], ["ssh", "sshd", "networking", "NetworkManager", "nginx", "apache2", "httpd", "fail2ban"]],
+    pattern = ["systemctl", ["restart", "reload", "stop"]],
     decision = "prompt",
-    justification = "Restarting security-sensitive or remote-access services can cause downtime or lockout.",
+    justification = "Restarting or stopping services can cause downtime or remote lockout.",
     match = [
         "systemctl restart sshd",
         "systemctl reload nginx",

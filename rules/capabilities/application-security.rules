@@ -2,13 +2,21 @@
 # Copy into <repo>/.codex/rules/ only when application-security is selected.
 
 prefix_rule(
-    pattern = [["npm", "pnpm", "yarn", "bun", "composer", "cargo", "pip-audit"], "audit"],
+    pattern = [["npm", "pnpm", "yarn", "bun", "composer", "cargo"], "audit"],
     decision = "prompt",
     justification = "Dependency audits may contact registries, update advisory data, or expose dependency metadata.",
     match = [
         "npm audit",
         "composer audit",
         "cargo audit",
+    ],
+)
+
+prefix_rule(
+    pattern = ["pip-audit"],
+    decision = "prompt",
+    justification = "Dependency audits may contact advisory services and expose dependency metadata.",
+    match = [
         "pip-audit",
     ],
 )
