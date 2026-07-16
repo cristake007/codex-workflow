@@ -10,8 +10,6 @@ Personal Codex instructions, configuration, command rules, reusable skills, proj
 
 ## Setup
 
-Clone the repository and run the same installer on Windows or Linux:
-
 ```text
 git clone https://github.com/cristake007/codex-workflow.git
 cd codex-workflow
@@ -20,46 +18,75 @@ node install.mjs
 
 The installer:
 
-- copies `global/AGENTS.md` to `$CODEX_HOME/AGENTS.md`;
-- copies `config/config.toml` to `$CODEX_HOME/config.toml`;
-- copies `rules/default.rules` to `$CODEX_HOME/rules/default.rules`;
-- creates a timestamped backup under `$CODEX_HOME/backups/` before replacing a different existing managed file;
+- copies `global/AGENTS.md`, `config.toml`, and the global `default.rules` into `CODEX_HOME`;
+- backs up different managed files before replacement;
 - links each repository skill individually into `~/.agents/skills`;
-- installs the repository-managed workflow and ecosystem skills;
-- installs the official `repomix-explorer` skill from `yamadashy/repomix`;
-- configures `repomix-explorer` with `allow_implicit_invocation: false`;
-- preserves unrelated skills already installed there;
-- refuses to replace unrelated existing skill directories.
+- installs the repository-managed workflow, ecosystem, Linux, and security skills;
+- installs Repomix Explorer for explicit invocation only;
+- preserves unrelated installed skills.
 
-A fresh clone followed by `node install.mjs` is sufficient. Repomix itself is not installed globally; the official skill runs it through `npx` only when invoked explicitly.
-
-Normal repository analysis therefore uses targeted search and direct file reads. Repomix Explorer remains available manually through `$repomix-explorer`, but Codex will not select it automatically from an ordinary repository-analysis prompt.
-
-`CODEX_HOME` is respected when it is defined. Its default value is `~/.codex`.
-
-Restart Codex after installation so the configuration, command rules, and skills are reloaded.
+`CODEX_HOME` defaults to `~/.codex`. Restart Codex after installation.
 
 ## Project Discovery and Bootstrap
 
-`project-discovery` distinguishes an existing project from a greenfield repository.
+`project-discovery` distinguishes existing, greenfield, and ambiguous repositories. It preserves established technologies and does not choose a stack for an empty repository without user approval.
 
-For existing projects, it detects repository evidence and preserves the established stack. For greenfield repositories, it requires product clarification and explicit stack approval before scaffolding code or selecting ecosystems.
-
-After the ecosystems are known, initialize project-local Codex support:
+### Mechanical setup
 
 ```text
-node init-project.mjs --target /path/to/project --ecosystems php,javascript,docker
+node init-project.mjs \
+  --target /path/to/project \
+  --ecosystems php,javascript,docker \
+  --capabilities linux,application-security,server-security
 ```
 
-The command creates:
+### Interactive `AGENTS.md` generator
 
+```text
+node init-project.mjs --target /path/to/project --interactive
+```
+
+Add `--advanced` for extra security and compatibility questions.
+
+### Repeatable generation from confirmed answers
+
+```text
+node init-project.mjs \
+  --target /path/to/project \
+  --answers project-answers.json
+```
+
+See `templates/project-answers.example.json` for the accepted shape.
+
+The bootstrap creates:
+
+- a concise repository `AGENTS.md` when `--interactive` or `--answers` is used;
 - `.codex/project-profile.json`;
 - `.codex/environment.local.example.md`;
-- only the selected ecosystem rules under `.codex/rules/`.
+- only the selected rule files under `.codex/rules/`.
 
-It does not select a greenfield technology stack, generate application code, modify the global `AGENTS.md`, or overwrite different existing project files. A trusted project and a Codex restart are required before project-local rules load.
+It does not generate application code, modify the global `AGENTS.md`, choose a greenfield stack, or overwrite different existing project files.
 
-The project `AGENTS.md` is created separately from confirmed project requirements so it contains real project context instead of generic placeholders.
+## Ecosystems and Capabilities
+
+Programming ecosystems:
+
+- PHP
+- Python
+- JavaScript and TypeScript
+- Shell
+- iOS and Swift
+- Docker
+
+Optional cross-cutting capabilities:
+
+- Linux administration and troubleshooting
+- Application security
+- Linux server security
+
+Capabilities are selected separately. A web project does not automatically receive security rules, and a Docker project does not automatically authorize host administration.
+
+Security skills are defensive. Active testing requires confirmed ownership or authorization, a defined target, and explicit scope.
 
 ## Updating
 
@@ -68,7 +95,15 @@ git pull
 node install.mjs
 ```
 
-Files that are already identical are left unchanged and do not create unnecessary backups. If Repomix Explorer already has an `agents/openai.yaml`, the installer preserves its other metadata, backs up the file before changing it, and enforces only `policy.allow_implicit_invocation: false`.
+Identical files are left unchanged and do not create unnecessary backups.
+
+## Validation
+
+```text
+node --check install.mjs
+node --check init-project.mjs
+node --test tests/project-bootstrap.test.mjs
+```
 
 ## Repository Layout
 
@@ -80,33 +115,23 @@ codex-workflow/
 │   └── AGENTS.md
 ├── rules/
 │   ├── default.rules
-│   └── ecosystems/
-│       ├── php.rules
-│       ├── python.rules
-│       ├── javascript.rules
-│       ├── shell.rules
-│       ├── ios.rules
-│       └── docker.rules
+│   ├── ecosystems/
+│   └── capabilities/
 ├── skills/
 │   ├── project-discovery/
 │   ├── project-bootstrap/
 │   ├── delivery-review/
-│   ├── ecosystem-php/
-│   ├── ecosystem-python/
-│   ├── ecosystem-javascript/
-│   ├── ecosystem-shell/
-│   ├── ecosystem-ios/
-│   ├── ecosystem-docker/
+│   ├── ecosystem-*/
+│   ├── linux-*/
+│   ├── security-review/
+│   ├── application-security/
+│   ├── server-security/
 │   └── software-design/
 ├── templates/
-│   ├── AGENTS-project.md
-│   ├── environment.local.example.md
-│   ├── project-profile.example.json
-│   └── README.md
+├── tests/
 ├── init-project.mjs
 ├── install.mjs
-├── .gitignore
 └── README.md
 ```
 
-Global instructions contain only behavioral rules that should apply to every task. `config.toml` controls Codex runtime defaults, while global `.rules` files control general command approval outside the sandbox. Detailed reusable workflows and technical conventions belong in focused skills. Project-specific facts and commands belong in the project's own `AGENTS.md`, while selected ecosystem command rules belong in the trusted project's `.codex/rules/` directory.
+Global instructions contain behavior that applies to every task. Project facts belong in the repository `AGENTS.md`. Reusable conventions belong in focused skills. Command approvals for selected technologies and capabilities belong in the trusted project's `.codex/rules/` directory.

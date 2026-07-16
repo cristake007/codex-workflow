@@ -1,0 +1,118 @@
+# Linux server security command rules
+# Copy into <repo>/.codex/rules/ only when server-security is selected.
+
+prefix_rule(
+    pattern = [["sshd", "nginx", "apachectl", "httpd"]],
+    decision = "allow",
+    justification = "Configuration test modes are read-only when invoked with their validation arguments.",
+    match = [
+        "sshd -t",
+        "nginx -t",
+        "apachectl configtest",
+        "httpd -t",
+    ],
+)
+
+prefix_rule(
+    pattern = ["ufw", "status"],
+    decision = "allow",
+    justification = "Firewall status inspection does not change policy.",
+    match = [
+        "ufw status verbose",
+    ],
+)
+
+prefix_rule(
+    pattern = ["firewall-cmd", ["--state", "--list-all", "--list-services", "--list-ports"]],
+    decision = "allow",
+    justification = "These firewall-cmd operations inspect current firewalld state.",
+    match = [
+        "firewall-cmd --state",
+        "firewall-cmd --list-all",
+    ],
+)
+
+prefix_rule(
+    pattern = ["nft", "list"],
+    decision = "allow",
+    justification = "Listing nftables state is read-only.",
+    match = [
+        "nft list ruleset",
+    ],
+)
+
+prefix_rule(
+    pattern = ["iptables", ["-S", "-L"]],
+    decision = "allow",
+    justification = "These iptables commands inspect current rules.",
+    match = [
+        "iptables -S",
+        "iptables -L -n -v",
+    ],
+)
+
+prefix_rule(
+    pattern = ["fail2ban-client", "status"],
+    decision = "allow",
+    justification = "Fail2ban status inspection does not modify jails or bans.",
+    match = [
+        "fail2ban-client status",
+        "fail2ban-client status sshd",
+    ],
+)
+
+prefix_rule(
+    pattern = [["ufw", "firewall-cmd", "iptables", "ip6tables", "nft"]],
+    decision = "prompt",
+    justification = "Firewall changes can expose services or lock out remote administration.",
+    match = [
+        "ufw enable",
+        "ufw allow 22/tcp",
+        "firewall-cmd --add-service=https --permanent",
+        "iptables -A INPUT -p tcp --dport 22 -j ACCEPT",
+        "nft add rule inet filter input tcp dport 22 accept",
+    ],
+)
+
+prefix_rule(
+    pattern = ["fail2ban-client", ["set", "reload", "restart"]],
+    decision = "prompt",
+    justification = "Changing fail2ban state can alter access controls or remove active protection.",
+    match = [
+        "fail2ban-client reload",
+        "fail2ban-client set sshd unbanip 192.0.2.10",
+    ],
+)
+
+prefix_rule(
+    pattern = [["certbot", "acme.sh"]],
+    decision = "prompt",
+    justification = "Certificate automation can change live web-server configuration and external ACME state.",
+    match = [
+        "certbot --nginx -d example.com",
+        "acme.sh --issue -d example.com --webroot /var/www/html",
+    ],
+)
+
+prefix_rule(
+    pattern = [["ssh-copy-id", "setenforce", "aa-disable", "aa-enforce", "visudo"]],
+    decision = "prompt",
+    justification = "These commands change remote access or mandatory access-control policy.",
+    match = [
+        "ssh-copy-id user@example.com",
+        "setenforce 0",
+        "aa-disable /usr/sbin/example",
+        "visudo",
+    ],
+)
+
+prefix_rule(
+    pattern = ["systemctl", ["restart", "reload", "stop"], ["ssh", "sshd", "networking", "NetworkManager", "nginx", "apache2", "httpd", "fail2ban"]],
+    decision = "prompt",
+    justification = "Restarting security-sensitive or remote-access services can cause downtime or lockout.",
+    match = [
+        "systemctl restart sshd",
+        "systemctl reload nginx",
+        "systemctl restart fail2ban",
+    ],
+)

@@ -1,44 +1,57 @@
 ---
 name: project-bootstrap
-description: Create minimal project-specific Codex configuration after project discovery. Use when the user has approved a greenfield stack or when an existing repository needs AGENTS.md, a project profile, environment notes, and selected project-local ecosystem rules.
+description: Create minimal project-specific Codex configuration after project discovery. Use when the user has approved a greenfield stack or operational capability, or when an existing repository needs AGENTS.md, a project profile, environment notes, and selected project-local rules.
 ---
 
 # Project Bootstrap
 
-Use only after `project-discovery` has established the repository mode and the ecosystems are known or explicitly approved.
+Use only after `project-discovery` has established the repository mode and the ecosystems or capabilities are known or explicitly approved.
 
 ## Required behavior
 
 1. Keep global `AGENTS.md` unchanged unless the user specifically requests a global policy change.
-2. Create or update a concise project `AGENTS.md` containing only repository-specific facts, constraints, protected locations, approved automatic checks, manual validation commands, and completion criteria.
-3. Do not copy generic language guidance into `AGENTS.md`; use ecosystem skills for technical conventions.
-4. Create `.codex/project-profile.json` to record the selected ecosystems and discovery mode.
-5. Copy only the selected rule templates into `.codex/rules/`.
+2. Create a concise project `AGENTS.md` containing only repository-specific facts, constraints, protected locations, approved automatic checks, manual validation commands, security boundaries, and completion criteria.
+3. Do not copy generic language, Linux, or security guidance into `AGENTS.md`; use focused skills for reusable technical conventions.
+4. Create `.codex/project-profile.json` to record discovery mode, selected ecosystems, selected capabilities, and detection evidence.
+5. Copy only the selected ecosystem and capability rule templates into `.codex/rules/`.
 6. Create `.codex/environment.local.example.md`; create the real local file only when the user provides machine-specific information.
 7. Never overwrite an existing instruction, profile, environment, or rule file without reviewing it first.
 
 ## Bootstrap script
 
-The bundled script performs the mechanical profile and rule installation:
+Mechanical profile and rule installation:
 
 ```text
-node scripts/init-project.mjs --target /path/to/project --ecosystems php,javascript,docker
+node init-project.mjs --target /path/to/project --ecosystems php,javascript,docker --capabilities linux,application-security
 ```
 
-For an empty repository, `--ecosystems` must reflect a stack already approved by the user. For an existing repository, the script may detect likely ecosystems, but the agent must review the result before accepting it.
+Interactive project questions and `AGENTS.md` generation:
 
-The script does not select a technology stack and does not generate application source code.
+```text
+node init-project.mjs --target /path/to/project --interactive
+```
+
+Repeatable generation from confirmed answers:
+
+```text
+node init-project.mjs --target /path/to/project --answers project-answers.json
+```
+
+For an empty repository, selected ecosystems or capabilities must already be approved by the user. For an existing repository, detected technologies and capability hints must be reviewed before acceptance.
+
+The script does not select a technology stack, generate application source code, or change global instructions.
 
 ## Project `AGENTS.md`
 
 Generate the smallest useful file. Include only sections that have concrete content:
 
-- project purpose and current status;
+- project purpose, current status, and intended users;
 - functional source of truth;
-- approved technologies and supported platforms;
-- important paths and protected/generated locations;
-- project-specific rules and prohibited actions;
+- approved technologies, operational capabilities, and supported platforms;
+- important paths and protected or generated locations;
+- scope, non-goals, project rules, and prohibited actions;
+- security and compatibility boundaries when provided;
 - approved automatic checks and manual validation commands;
 - completion criteria.
 
-Avoid placeholders in the final file. Use `Not applicable` only when omitting a section would make the constraint ambiguous.
+Avoid placeholders in the generated file. Omit empty sections instead of filling them with generic text.

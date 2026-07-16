@@ -1,0 +1,137 @@
+# Linux administration command rules
+# Copy into <repo>/.codex/rules/ only when the Linux capability is selected.
+
+prefix_rule(
+    pattern = [["uname", "uptime", "whoami", "id", "df", "free", "lsblk"]],
+    decision = "allow",
+    justification = "These commands collect basic read-only Linux system facts.",
+    match = [
+        "uname -a",
+        "uptime",
+        "whoami",
+        "id",
+        "df -h",
+        "free -h",
+        "lsblk",
+    ],
+)
+
+prefix_rule(
+    pattern = ["systemctl", ["status", "is-active", "is-enabled", "list-units", "list-unit-files"]],
+    decision = "allow",
+    justification = "These systemd commands inspect service state without changing it.",
+    match = [
+        "systemctl status nginx",
+        "systemctl is-active ssh",
+        "systemctl list-units --failed",
+    ],
+)
+
+prefix_rule(
+    pattern = [["journalctl", "ss", "getent"]],
+    decision = "allow",
+    justification = "These commands inspect logs, sockets, and system name-service data.",
+    match = [
+        "journalctl -u nginx -n 100 --no-pager",
+        "ss -lntup",
+        "getent hosts example.com",
+    ],
+)
+
+prefix_rule(
+    pattern = ["ip", ["addr", "address", "route", "link"]],
+    decision = "allow",
+    justification = "These ip commands inspect interface and routing state.",
+    match = [
+        "ip addr show",
+        "ip route show",
+        "ip link show",
+    ],
+)
+
+prefix_rule(
+    pattern = ["sudo"],
+    decision = "prompt",
+    justification = "Privileged Linux commands can change the host and require explicit review.",
+    match = [
+        "sudo systemctl restart nginx",
+        "sudo apt install package-name",
+    ],
+)
+
+prefix_rule(
+    pattern = [["apt", "apt-get"], ["install", "remove", "purge", "upgrade", "full-upgrade", "dist-upgrade"]],
+    decision = "prompt",
+    justification = "Package operations can change services, dependencies, and the operating system.",
+    match = [
+        "apt install package-name",
+        "apt remove package-name",
+        "apt full-upgrade",
+    ],
+)
+
+prefix_rule(
+    pattern = [["dnf", "yum", "zypper", "apk", "pacman"], ["install", "add", "remove", "erase", "upgrade", "update"]],
+    decision = "prompt",
+    justification = "Package operations can change services, dependencies, and the operating system.",
+    match = [
+        "dnf install package-name",
+        "yum remove package-name",
+        "apk add package-name",
+        "pacman -S package-name",
+    ],
+)
+
+prefix_rule(
+    pattern = ["systemctl", ["start", "stop", "restart", "reload", "enable", "disable", "mask", "unmask", "daemon-reload"]],
+    decision = "prompt",
+    justification = "Service lifecycle and enablement changes can interrupt availability or alter boot behavior.",
+    match = [
+        "systemctl restart nginx",
+        "systemctl enable example.service",
+        "systemctl daemon-reload",
+    ],
+)
+
+prefix_rule(
+    pattern = [["useradd", "usermod", "userdel", "groupadd", "groupmod", "groupdel", "passwd", "chage"]],
+    decision = "prompt",
+    justification = "Account and credential changes affect access and privilege.",
+    match = [
+        "useradd example",
+        "usermod -aG sudo example",
+        "passwd example",
+    ],
+)
+
+prefix_rule(
+    pattern = [["mount", "umount", "swapon", "swapoff", "fsck", "mkfs", "wipefs", "fdisk", "parted"]],
+    decision = "prompt",
+    justification = "Storage and filesystem commands can cause downtime or irreversible data loss.",
+    match = [
+        "mount /dev/sdb1 /mnt/data",
+        "umount /mnt/data",
+        "fsck /dev/sdb1",
+        "mkfs.ext4 /dev/sdb1",
+    ],
+)
+
+prefix_rule(
+    pattern = ["sysctl", "-w"],
+    decision = "prompt",
+    justification = "Runtime kernel setting changes can affect security, networking, and stability.",
+    match = [
+        "sysctl -w net.ipv4.ip_forward=1",
+    ],
+)
+
+prefix_rule(
+    pattern = [["reboot", "shutdown", "poweroff", "halt"]],
+    decision = "prompt",
+    justification = "Power and reboot commands interrupt the host and all running services.",
+    match = [
+        "reboot",
+        "shutdown -r now",
+        "poweroff",
+    ],
+)
