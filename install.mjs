@@ -190,7 +190,7 @@ async function ensureProjectsWorkspace() {
 
   const ignoreStat = await lstat(ignorePath);
   if (ignoreStat.isDirectory()) {
-    fail(`PROJECTS/.gitignore is a directory, expected a file: ${ignorePath}`);
+    fail(`projects/.gitignore is a directory, expected a file: ${ignorePath}`);
   }
 
   info(`Projects workspace is ready: ${projectsRoot}`);
