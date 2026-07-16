@@ -19,7 +19,7 @@ const isWindows = process.platform === 'win32';
 const repoRoot = path.dirname(fileURLToPath(import.meta.url));
 const homeDir = homedir();
 const codexHome = path.resolve(process.env.CODEX_HOME || path.join(homeDir, '.codex'));
-const projectsRoot = path.join(repoRoot, 'PROJECTS');
+const projectsRoot = path.join(repoRoot, 'projects');
 const projectsIgnoreContent = ['*', '!.gitignore', ''].join('\n');
 
 const managedFiles = [

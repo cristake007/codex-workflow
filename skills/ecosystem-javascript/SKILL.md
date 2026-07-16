@@ -1,6 +1,6 @@
 ---
 name: ecosystem-javascript
-description: Apply JavaScript and TypeScript ecosystem conventions after the project stack is known. Activate for JS/TS implementation, review, package management, runtime, framework, build, test, browser, or Node.js decisions. Do not activate to choose JavaScript for a greenfield project or for work where JavaScript-specific conventions cannot affect the result.
+description: Apply JavaScript and TypeScript ecosystem conventions whenever reviewing or modifying JavaScript or TypeScript source, configuration, packages, builds, or tests, including bounded single-file work on .js, .mjs, .cjs, .jsx, .ts, and .tsx files. Activate for Node.js and browser code reviews even when the exact file path is already provided. Do not activate for purely textual work or for choosing an unapproved greenfield stack.
 ---
 
 # JavaScript and TypeScript Ecosystem
