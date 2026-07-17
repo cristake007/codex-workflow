@@ -1,96 +1,61 @@
 ---
 name: linux-service-management
-description: Configure, deploy, and operate known Linux services using systemd, reverse proxies, sockets, environment files, service accounts, logs, health checks, and safe reload procedures. Activate for long-running applications and server processes when the service objective is established. Do not activate while the failure cause is still unknown, for unrelated host-wide administration, or when no Linux service lifecycle decision is required.
+description: Configure, deploy, and operate known Linux services through systemd, reverse proxies, sockets, environment files, service accounts, logs, health checks, and safe lifecycle actions. Activate when the service objective and cause are established. Do not activate for unresolved diagnosis, unrelated host administration, or application-only work.
 ---
 
 # Linux Service Management
 
 ## Purpose
 
-Apply the smallest safe service configuration or lifecycle change while preserving availability, remote access, persistent data, secrets, health checks, and rollback.
+Apply the smallest safe service change while preserving availability, access, data, secrets, health, and rollback.
 
 ## Activate when
 
-- creating, editing, deploying, enabling, disabling, reloading, restarting, or operating a known Linux service;
-- changing systemd units, drop-ins, reverse proxies, sockets, environment files, service accounts, logs, ports, health checks, startup ordering, or restart policy;
-- applying a confirmed service correction after troubleshooting is complete;
-- deploying or operating a long-running application or server process;
-- a bounded service configuration edit still requires lifecycle, availability, privilege, or rollback judgment.
+- creating or changing units, drop-ins, proxies, sockets, environment files, accounts, ports, logs, health checks, or restart policy;
+- deploying or operating a known long-running process;
+- applying a confirmed service correction.
 
 ## Do not activate when
 
-- the symptom or cause is still unknown and `linux-troubleshooting` must distinguish failure modes first;
-- the task is broad host administration unrelated to a specific service lifecycle;
-- the task is only application source-code implementation with no service configuration or operation;
-- the requested outcome is purely informational or read-only;
-- the target is not a Linux service or Linux-hosted long-running process.
-
-An exact unit, proxy, environment, or configuration path is not by itself a reason to skip this skill when service behavior or lifecycle is affected.
+- the cause is still unknown;
+- the task is broad host administration or application-only implementation;
+- no service lifecycle decision is required.
 
 ## Required context
 
-Use facts already available in the prompt and conversation. Establish only missing service-specific context:
-
-- process, executable, arguments, working directory, service account, and environment;
-- systemd unit, drop-ins, reverse proxy, socket, process manager, or other authoritative lifecycle mechanism;
-- ports, protocols, dependencies, startup ordering, timeouts, restart behavior, and resource limits;
-- persistent data, writable paths, ownership, permissions, and secret locations;
-- log destinations, health checks, readiness, graceful reload, and zero-downtime requirements;
-- production status, public exposure, maintenance window, active users, and recovery path;
-- existing deployment conventions and previous configuration;
-- native validation, daemon reload, service reload or restart, health, and rollback commands.
+Confirm the process and working directory, lifecycle mechanism, account and environment, ports and dependencies, data and permissions, secrets, logs and health, availability requirements, production status, recovery, approvals, and native validation commands.
 
 ## Workflow
 
-1. Check the prompt and conversation for the established objective, prior diagnosis, approvals, and known service facts.
-2. Identify the process, executable, working directory, service account, environment, ports, dependencies, data paths, and expected lifecycle.
-3. Inspect existing units, drop-ins, reverse-proxy configuration, sockets, log destinations, health checks, and deployment conventions before creating alternatives.
-4. Back up hand-maintained unit, proxy, environment, and service configuration before editing.
-5. Keep secrets outside unit files and repositories, using existing secret stores or protected environment files with minimal permissions.
-6. Define startup ordering, restart behavior, timeouts, resource limits, and writable paths only when required.
-7. Validate configuration with native test commands before daemon reload, service reload, restart, or enablement.
-8. Prefer reload over restart when supported and safe.
-9. When availability matters, confirm the new process is healthy before ending the old one where the platform supports it.
-10. Verify service state, logs, listening sockets, ownership, health endpoints, dependencies, and restart behavior.
-11. Preserve the previous unit or configuration and provide rollback.
+1. Reuse the established objective, diagnosis, approvals, and service facts.
+2. Inspect existing units, proxies, sockets, environment, logs, health checks, and deployment conventions.
+3. Back up hand-maintained configuration.
+4. Keep secrets outside units and repositories.
+5. Define ordering, restart behavior, limits, and writable paths only when required.
+6. Validate before daemon reload, reload, restart, or enablement.
+7. Prefer reload when safe and verify affected state, logs, sockets, dependencies, and health.
+8. Preserve prior configuration and provide rollback.
 
 ## Stop conditions
 
-Stop when:
-
-- the requested service configuration or lifecycle action is applied and proportionally verified;
-- the next step changes production availability, public exposure, access, persistent data, firewall rules, or critical infrastructure without explicit approval;
-- the cause is still uncertain and troubleshooting must resume;
-- backup, recovery, privilege, maintenance, or secret-handling information is insufficient for a safe change;
-- remaining work belongs to host administration, application implementation, or another narrower skill.
+Stop when the action is proportionally verified, production availability or exposure changes lack approval, diagnosis must resume, recovery or privilege context is insufficient, or remaining work belongs elsewhere.
 
 ## Guardrails
 
-- Do not bind a new public port, enable a service at boot, or change firewall and reverse-proxy exposure without explicit approval.
-- Do not run application services as root unless the requirement and platform make it unavoidable.
-- Do not overwrite hand-maintained units, drop-ins, proxy configuration, environment files, or service scripts without inspection and backup.
-- Do not restart SSH, networking, firewall, database, or production-facing services casually.
-- Do not place secrets directly in unit files, command arguments, logs, or repositories.
-- Do not create competing startup mechanisms when systemd or another service manager is already authoritative.
-- Do not claim zero-downtime, health, restart safety, or rollback success without verification.
+- Do not expose ports, enable boot startup, or change firewall or proxy exposure without approval.
+- Do not run services as root without necessity.
+- Do not overwrite maintained configuration without inspection and backup.
+- Do not restart critical or production services casually.
+- Do not place secrets in units, arguments, logs, or repositories.
+- Do not create competing lifecycle mechanisms.
 
 ## Validation
 
-- Use native configuration tests before daemon reload, proxy reload, service reload, restart, or enablement.
-- Validate only the affected unit, proxy, socket, port, dependency, health endpoint, and log boundary.
-- Prefer reload over restart when supported and safe.
-- Do not perform production reloads, restarts, enablement, public exposure changes, or destructive service actions unless explicitly requested and authorized.
-- After an approved change, verify service state, logs, listening sockets, ownership, dependencies, and health.
-- State clearly which availability, restart, failover, production, or recovery behavior remains unverified.
+- Check the change against the requested service behavior.
+- Use native configuration tests before lifecycle actions.
+- Validate only the affected unit, proxy, socket, port, dependency, logs, and health.
+- State availability, restart, failover, production, or recovery behavior not verified.
 
 ## Output
 
-Report only:
-
-- service topology and authoritative lifecycle mechanism;
-- files and settings changed or proposed;
-- lifecycle commands used or requiring approval;
-- affected ports, dependencies, users, secrets, logs, health checks, and persistent data;
-- validation performed;
-- rollback procedure;
-- important unverified availability or production risks.
+Report the service topology, files and settings, lifecycle actions, affected boundaries, validation, rollback, and unverified availability or production risks.
