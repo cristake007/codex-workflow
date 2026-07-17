@@ -1,95 +1,61 @@
 ---
 name: server-security
-description: Assess and harden authorized Linux servers while preserving administrative access, evidence, service availability, persistent data, and rollback. Activate for SSH, sudo, firewall, exposed services, patching, TLS, permissions, secrets, logging, backups, containers, and host-hardening work. Do not activate for application-only security, ordinary administration with no security objective, unresolved operational troubleshooting, or unauthorized external scanning.
+description: Assess or harden authorized Linux servers while preserving access, service availability, data, evidence, and rollback. Activate for explicit server-security work involving SSH, sudo, firewall, exposure, patching, TLS, permissions, secrets, logging, backups, containers, or recovery. Do not activate for ordinary administration, application-only security, unresolved troubleshooting, or unauthorized scanning.
 ---
 
 # Server Security
 
 ## Purpose
 
-Reduce realistic Linux server exposure through evidence-based hardening while preserving access, service health, data, recovery, and operational compatibility.
+Reduce realistic host exposure through evidence-based hardening without losing access, availability, data, or recovery.
 
 ## Activate when
 
-- assessing or changing SSH, users, groups, sudo, authentication, permissions, ownership, secrets, or administrative access;
-- reviewing firewall policy, listening sockets, exposed services, reverse proxies, TLS, patch state, scheduled work, logs, backups, or host containers;
-- the user requests Linux server security assessment, hardening, exposure reduction, or security remediation;
-- a confirmed host-security weakness requires a safe remediation sequence;
-- server access, public exposure, least privilege, recovery, or defense-in-depth decisions are central to the task.
+- reviewing or changing administrative access, SSH, sudo, authentication, permissions, or secrets;
+- assessing firewall, sockets, exposed services, TLS, patches, logs, backups, containers, or recovery;
+- the user explicitly requests server hardening or security remediation.
 
 ## Do not activate when
 
-- the task is application code, API, dependency, or application-data security with no host boundary;
-- the task is ordinary Linux administration or service operation with no security objective;
-- an unexplained failure must first be diagnosed through `linux-troubleshooting`;
-- the user requests unauthorized external scanning, exploitation, persistence, credential theft, exfiltration, or destructive actions;
-- the target is not an authorized Linux server or Linux-hosted environment.
-
-An exact configuration path is not by itself a reason to skip this skill when the requested change affects server exposure, access, privilege, or recovery.
+- the task is ordinary administration or service operation with no security objective;
+- the work is application-only security;
+- an unexplained failure requires troubleshooting first;
+- the target or testing is unauthorized.
 
 ## Required context
 
-Use facts already available in the prompt and conversation. Establish only missing server-security context:
-
-- ownership, authorization, host role, distribution, version, and environment;
-- production status, public exposure, access path, current session, privilege level, and recovery access;
-- users, groups, sudo rules, SSH settings, authentication methods, and administrative boundaries;
-- listening sockets, firewall policy, reverse proxies, TLS endpoints, running and enabled services, and management interfaces;
-- patch state, support status, package sources, containers, scheduled work, and sensitive paths;
-- secrets, private keys, certificates, logs, audit controls, retention, backups, and recovery procedures;
-- SELinux, AppArmor, firewall, upstream network, cloud, and other security controls;
-- active-testing limits, maintenance window, rollback requirements, and approved validation commands.
+Confirm authorization, host role and environment, production and public exposure, access and recovery paths, users and privileges, sockets and firewall, services and TLS, patches and containers, secrets and logs, backups and security controls, testing limits, maintenance window, and rollback.
 
 ## Workflow
 
-1. Confirm ownership, authorization, host role, distribution, version, environment, production status, and active-testing limits.
-2. Confirm public exposure, administrative access path, current session, privilege level, and independent recovery access.
-3. Inventory only relevant users, groups, sudo rules, SSH settings, listening sockets, firewall policy, services, patch state, TLS endpoints, scheduled jobs, containers, sensitive paths, logs, and backups.
-4. Identify assets, attack surface, trust boundaries, privileged operations, and recovery dependencies before changing configuration.
-5. Prioritize remotely reachable weaknesses, excessive privilege, weak authentication, exposed management interfaces, unsupported software, insecure secrets, missing logs, and unverified recovery.
-6. Distinguish confirmed misconfiguration, urgent exposure, patching need, and defense-in-depth improvement.
-7. Back up configuration and validate syntax before reload or restart.
-8. Stage SSH, sudo, firewall, and access-control changes so the current session remains available and an independent recovery path exists when possible.
-9. Apply the smallest effective hardening change in a safe dependency order.
-10. Verify administrative access, service health, logs, firewall state, listening sockets, TLS behavior, permissions, patch state, and backup recoverability after approved changes.
-11. Provide exact rollback for every access-affecting or availability-affecting change.
+1. Establish authorization, environment, exposure, access, privileges, recovery, and testing limits.
+2. Inventory only the relevant access, service, network, patch, TLS, container, secret, log, and backup boundaries.
+3. Identify attack surface, trust boundaries, privileged actions, and recovery dependencies.
+4. Prioritize remotely reachable weaknesses, excessive privilege, weak authentication, exposed management, unsupported software, insecure secrets, and missing recovery controls.
+5. Separate urgent exposure, confirmed misconfiguration, patching need, and defense-in-depth improvement.
+6. Back up and validate configuration before approved changes.
+7. Stage access and firewall changes to preserve the current session and recovery path.
+8. Verify affected access, service health, logs, sockets, firewall, TLS, permissions, patches, and recovery.
 
 ## Stop conditions
 
-Stop when:
-
-- the in-scope attack surface and security controls have sufficient evidence;
-- findings are categorized and the safe remediation order is clear;
-- the next step could lock out access, interrupt production, change public exposure, rotate credentials, remove software, or alter persistent data without explicit approval;
-- independent recovery, backups, privileges, maintenance window, or authorization are insufficient for safe changes;
-- remaining work belongs to application security, troubleshooting, service management, or ordinary administration.
+Stop when the in-scope attack surface is evidenced and remediation order is clear, a change could affect access or production without approval, recovery or authorization is insufficient, or remaining work belongs to another skill.
 
 ## Guardrails
 
-- Use only for systems the user owns or is authorized to assess.
-- Do not lock out the user, replace SSH configuration, flush firewall rules, rotate keys, revoke users, or restart critical services without explicit approval and rollback.
-- Do not disable SELinux, AppArmor, firewalling, TLS verification, authentication, authorization, logging, or audit controls as a convenience.
-- Do not actively scan external targets or attempt exploitation without explicit authorization.
-- Do not expose credentials, tokens, private keys, certificates, sensitive paths, or confidential logs unnecessarily.
-- Do not treat version strings alone as proof of vulnerability when configuration or backported patches may change exposure.
-- Preserve administrative access, evidence, persistent data, service availability, and recovery throughout the work.
+- Use only on authorized systems.
+- Do not lock out users, replace SSH, flush firewalls, rotate keys, revoke access, or restart critical services without approval and rollback.
+- Do not disable security or audit controls, scan external targets, or expose sensitive evidence.
+- Do not treat version strings alone as proof of vulnerability.
+- Preserve access, evidence, data, availability, and recovery.
 
 ## Validation
 
-- Prefer passive host, configuration, package, service, socket, firewall, TLS, log, and backup evidence before active tests.
-- Validate configuration syntax before reload, restart, enablement, or access-control changes.
-- Stage and verify SSH, sudo, and firewall changes without closing the current working session until new access is confirmed.
-- After approved hardening, verify access, service health, logs, listening sockets, firewall state, TLS behavior, permissions, patch state, and recovery as applicable.
-- Do not run broad scanners, exploit payloads, production-disrupting checks, upgrades, reboots, or destructive recovery tests automatically.
-- State clearly which exposures, services, patches, controls, backups, and recovery paths remain unverified.
+- Prefer passive host, configuration, package, service, socket, firewall, TLS, log, and backup evidence.
+- Validate syntax before reload, restart, enablement, or access changes.
+- Verify access changes before closing the current session.
+- State exposures, services, patches, controls, backups, and recovery paths not verified.
 
 ## Output
 
-Separate findings into:
-
-- urgent remotely reachable exposure;
-- confirmed security misconfiguration;
-- patching or support needs;
-- defense-in-depth improvements.
-
-For each material finding include evidence, affected boundary, realistic risk, safe remediation order, validation, rollback, and unresolved recovery or availability risk.
+Group findings as urgent exposure, confirmed misconfiguration, patching need, or defense-in-depth. Include evidence, affected boundary, realistic risk, safe remediation order, validation, rollback, and unresolved recovery or availability risk.
