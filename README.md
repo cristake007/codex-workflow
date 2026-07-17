@@ -97,12 +97,37 @@ node install.mjs
 
 Identical files are left unchanged and do not create unnecessary backups.
 
+## Uninstalling
+
+Inspect the planned changes first:
+
+```text
+node uninstall.mjs --dry-run
+```
+
+Apply the uninstall:
+
+```text
+node uninstall.mjs
+```
+
+The uninstaller:
+
+- restores the newest valid backup for each unchanged repository-managed Codex file;
+- removes a managed file only when it still matches the repository source and no backup exists;
+- leaves modified files, directories, symlinks, and unrelated skills untouched;
+- removes only skill links that resolve to the corresponding skill directory in this repository;
+- restores installer-managed Repomix Explorer metadata when its backup can be verified, while preserving the external Repomix Explorer skill;
+- preserves the repository `projects/` workspace and all backup directories.
+
 ## Validation
 
 ```text
 node --check install.mjs
+node --check uninstall.mjs
 node --check init-project.mjs
 node --test tests/project-bootstrap.test.mjs
+node --test tests/uninstall.test.mjs
 ```
 
 ## Repository Layout
@@ -131,6 +156,7 @@ codex-workflow/
 ├── tests/
 ├── init-project.mjs
 ├── install.mjs
+├── uninstall.mjs
 └── README.md
 ```
 
