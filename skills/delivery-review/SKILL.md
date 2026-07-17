@@ -1,46 +1,47 @@
 ---
 name: delivery-review
-description: Perform one bounded, strictly read-only final review of completed work against the request, source of truth, repository boundary, and effective diff. Activate only when the user explicitly requests final review, delivery readiness, or a pre-commit assessment. Do not activate during normal implementation, to fix findings, alter Git state, or repeat an unchanged review.
+description: Perform one bounded, strictly read-only final review of completed work. Assess technical readiness from the implementation, effective diff, repository conventions, and available evidence; assess requirements conformance separately when an authoritative specification exists. Activate only when the user explicitly requests final review, delivery readiness, or a pre-commit assessment.
 ---
 
 # Delivery Review
 
 ## Purpose
 
-Decide whether completed work is ready to deliver using the minimum evidence needed, without modifying repository state.
+Assess completed work using the minimum evidence needed, without modifying repository state. Keep technical readiness separate from conformance to documented requirements.
 
 ## Activate when
 
 - the user explicitly requests final review or delivery readiness;
-- completed work has a clear request, source of truth, and effective diff;
+- completed work has an effective diff or deliverable to assess;
 - one focused pre-commit or pre-delivery assessment is needed.
 
 ## Do not activate when
 
-- implementation is still in progress or no diff exists;
+- implementation is still in progress or no deliverable exists;
 - ordinary implementation validation is sufficient;
 - the task is discovery, design, troubleshooting, or a broad audit;
 - the requested action is to fix, stage, commit, or publish work.
 
 ## Required context
 
-Confirm the request and non-goals, declared source-of-truth path, target directory and intended Git root, effective diff, applicable project constraints, checks already run, and known limitations.
+Confirm the review objective, request and non-goals when available, target directory and intended Git root, effective diff, applicable project constraints, checks already run, known limitations, and any declared functional source of truth.
 
 ## Workflow
 
-1. Confirm the target directory, nearest intended Git root, declared source-of-truth path, and effective changed-file list before loading ecosystem skills or full patches.
-2. Check decisive readiness blockers first: missing authoritative source, unresolved repository boundary, known incomplete implementation, prohibited changes, or required validation with no usable path.
-3. Check the declared authoritative path directly. If it is missing, report the blocker; do not search broadly for an undocumented substitute.
-4. If a confirmed blocker already makes delivery impossible, stop further framework, compatibility, packaging, precedent, web-documentation, and ecosystem review unless another check is needed to identify an independent security, data-loss, or repository-boundary risk.
-5. Otherwise inspect diff statistics and changed-file names first, then read only patches whose behavior can affect readiness.
-6. Activate an ecosystem skill only when its specialist judgment can still change the readiness verdict; file presence or syntax checking alone is insufficient.
-7. Check requested behavior, regressions, boundaries, compatibility, dependencies, generated files, security, and validation only where affected.
-8. Reuse valid existing check results for unchanged code; run only the smallest missing permitted checks.
-9. Report findings without changing files or Git state and perform one pass unless relevant code or requirements change.
+1. Confirm the target directory, intended nearest Git root, review objective, and effective changed-file list before loading ecosystem skills or full patches.
+2. Determine whether the user requests technical readiness, requirements conformance, or both.
+3. If a functional source of truth is declared, check its exact path. If missing, mark only requirements conformance as unverified; do not search broadly for an undocumented substitute.
+4. Continue technical review from the implementation, effective diff, repository conventions, and observable behavior unless the user requested only conformance to the missing source.
+5. Check decisive technical blockers first: unresolved repository boundary, known incomplete implementation, prohibited changes, concrete defects, failed required checks, or no usable validation path for a required claim.
+6. If a confirmed blocker fixes the applicable technical-readiness verdict, stop secondary framework, compatibility, packaging, precedent, documentation, and ecosystem analysis unless another check can reveal an independent security, data-loss, or repository-boundary risk.
+7. Otherwise inspect diff statistics and changed-file names first, then read only patches whose behavior can affect readiness.
+8. Activate an ecosystem skill only when specialist judgment can change the technical verdict; file presence or syntax checking alone is insufficient.
+9. Reuse valid existing checks for unchanged code and run only the smallest missing permitted checks.
+10. Report findings without changing files or Git state and perform one pass unless relevant code or requirements change.
 
 ## Stop conditions
 
-Stop immediately when a confirmed blocker fixes the readiness verdict and further review cannot reveal an independent security, data-loss, or repository-boundary risk. Also stop when all relevant changed areas are assessed once, unavailable access prevents verification, or further inspection would exceed scope.
+Stop when the applicable verdict has sufficient evidence, a confirmed technical blocker fixes readiness and no independent material risk remains to assess, unavailable access prevents further verification, or additional inspection would exceed scope. A missing functional specification stops only conformance claims, not technical review.
 
 ## Guardrails
 
@@ -48,19 +49,21 @@ Stop immediately when a confirmed blocker fixes the readiness verdict and furthe
 - Do not edit, generate, stage, restore, commit, push, merge, rebase, or change ignore or repository-boundary rules.
 - Do not add ignored files or child-project contents to a parent repository.
 - Do not fix findings during review; require a separate implementation step.
+- Do not treat a missing project `AGENTS.md` as a delivery blocker by itself; use the applicable instructions already loaded for the session.
+- Do not treat a missing functional specification as a general technical blocker.
 - Do not reread complete applicable `AGENTS.md` files already loaded into the session; inspect only a specific disputed rule when necessary.
-- Do not browse framework documentation, search repository-wide precedents, or inspect package contents after a decisive blocker unless the result can still expose an independent material risk.
+- Do not browse framework documentation, search repository-wide precedents, or inspect package contents after a decisive technical blocker unless the result can expose an independent material risk.
 - Do not invent findings, broaden scope, or repeat an unchanged review.
 
 ## Validation
 
-- Base conclusions on the actual diff, request, declared source, and repository boundary.
+- Base technical conclusions on the implementation, effective diff, repository conventions, permitted checks, and confirmed repository boundary.
+- Base requirements-conformance conclusions only on available authoritative requirements; otherwise mark conformance unverified.
 - Start with changed-file metadata and bounded output; avoid full repository dumps and unrestricted logs.
 - Use only permitted targeted checks not already passed against unchanged code.
-- Inspect package contents only when packaging is part of the requested deliverable and no earlier blocker already makes readiness impossible.
-- Treat ignored workspace content as a boundary signal, not permission to change policy.
-- State unverified runtime, integration, browser, production, infrastructure, or source-control behavior.
+- Inspect package contents only when packaging is part of the requested deliverable and can still affect the applicable verdict.
+- State unverified runtime, integration, browser, production, infrastructure, and source-control behavior.
 
 ## Output
 
-Return decisive blockers first. Then report only the target and Git root, checks executed before stopping, unverified behavior, material independent risks, and readiness. For boundary blockers, state that no files, ignore rules, staging, or commits changed.
+Report material findings first. Then state separately: requirements conformance, technical readiness, target and Git root, checks executed, unverified behavior, independent material risks, and whether any files, ignore rules, staging, or commits changed.
