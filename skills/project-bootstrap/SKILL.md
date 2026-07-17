@@ -1,25 +1,25 @@
 ---
 name: project-bootstrap
-description: Create minimal project-specific Codex configuration after the repository context, approved ecosystems, and operational capabilities are already known. Activate when a new or existing repository needs project AGENTS.md, a project profile, environment notes, or selected project-local rules. Do not activate for ordinary implementation work, when project discovery is still unresolved, or when only one existing configuration file needs a bounded edit.
+description: Create minimal project-specific Codex configuration after the repository context, approved ecosystems, operational capabilities, target directory, and repository boundary are already known. Activate when a new or existing repository needs project AGENTS.md, a project profile, environment notes, or selected project-local rules. Do not activate for ordinary implementation work, when project discovery or the target Git root is unresolved, or when only one existing configuration file needs a bounded edit.
 ---
 
 # Project Bootstrap
 
 ## Purpose
 
-Create the smallest useful project-specific Codex configuration without duplicating global guidance or inventing repository facts.
+Create the smallest useful project-specific Codex configuration inside the confirmed target repository without duplicating global guidance, inventing repository facts, or crossing workspace boundaries.
 
 ## Activate when
 
 - an approved greenfield project needs its initial Codex configuration;
 - an existing repository lacks a project `AGENTS.md`, project profile, environment notes, or selected local rules;
-- `project-discovery` has already established the repository mode, ecosystems, capabilities, and authoritative sources;
+- `project-discovery` has already established the repository mode, ecosystems, capabilities, authoritative sources, target directory, and repository boundary;
 - the user explicitly requests project bootstrap, initialization, or regeneration from confirmed answers;
 - repository-specific constraints must be recorded for future Codex sessions.
 
 ## Do not activate when
 
-- required repository context, stack decisions, or capability choices are still unknown or unapproved;
+- required repository context, stack decisions, capability choices, target directory, or nearest Git root are still unknown or unapproved;
 - the task is ordinary source-code implementation, review, troubleshooting, or documentation work;
 - the repository already has sufficient project-specific Codex configuration and no bootstrap change is requested;
 - only one explicitly identified existing configuration file needs a bounded edit;
@@ -29,10 +29,12 @@ Create the smallest useful project-specific Codex configuration without duplicat
 
 Use facts already available in the prompt and conversation. Establish only missing bootstrap inputs:
 
+- exact target directory;
+- nearest Git repository root for that target, or confirmation that the target is intentionally not yet a Git repository;
 - repository mode: existing, greenfield, or operational;
 - project purpose, current status, intended users, and functional source of truth;
 - approved ecosystems, operational capabilities, platforms, and deployment targets;
-- important paths, protected locations, generated files, and persistent data;
+- important paths, protected locations, generated files, ignored workspace boundaries, and persistent data;
 - project-specific prohibited actions and production restrictions;
 - approved automatic checks and manual validation commands;
 - environment-specific information that may be documented safely;
@@ -41,28 +43,36 @@ Use facts already available in the prompt and conversation. Establish only missi
 ## Workflow
 
 1. Check the prompt, current conversation, and prior discovery result before inspecting the repository.
-2. Confirm that the stack and capabilities are established or explicitly approved.
-3. Inspect existing project instructions, `.codex/` files, environment notes, and local rules before generating replacements.
-4. Create or update a concise project `AGENTS.md` containing only concrete repository-specific facts, constraints, protected paths, validation limits, security boundaries, and completion criteria.
-5. Create `.codex/project-profile.json` with the confirmed repository mode, ecosystems, capabilities, and detection evidence.
-6. Copy only selected ecosystem and capability rule templates into `.codex/rules/`.
-7. Create `.codex/environment.local.example.md`; create a real local environment file only when the user provides machine-specific facts and requests it.
-8. Omit empty sections and placeholders.
-9. Report any conflict between existing configuration and confirmed project context instead of silently overwriting it.
+2. Resolve the exact target directory and determine its nearest Git repository root before creating or modifying files.
+3. Confirm that the target is not merely an ignored child workspace of a parent repository unless it is itself the intended repository.
+4. Confirm that the stack and capabilities are established or explicitly approved.
+5. Inspect existing project instructions, `.codex/` files, environment notes, local rules, and ignore boundaries inside the confirmed target repository.
+6. Create or update a concise project `AGENTS.md` inside the confirmed target only, containing concrete repository-specific facts, constraints, protected paths, validation limits, security boundaries, and completion criteria.
+7. Create `.codex/project-profile.json` with the confirmed repository mode, ecosystems, capabilities, detection evidence, target directory, and repository boundary.
+8. Copy only selected ecosystem and capability rule templates into the target repository's `.codex/rules/`.
+9. Create `.codex/environment.local.example.md`; create a real local environment file only when the user provides machine-specific facts and requests it.
+10. Omit empty sections and placeholders.
+11. Report any conflict between existing configuration, repository boundaries, ignore rules, and confirmed project context instead of silently changing them.
 
 ## Stop conditions
 
 Stop bootstrap when:
 
-- the minimum requested project configuration exists and reflects confirmed facts;
+- the minimum requested project configuration exists inside the confirmed target repository and reflects confirmed facts;
+- the target directory or nearest Git root is ambiguous;
+- the target lies inside an intentionally ignored workspace and is not itself the confirmed repository;
 - an unresolved stack, capability, security, or environment decision requires user input;
-- an existing instruction or rule conflicts materially with the proposed generated content;
+- an existing instruction, rule, or repository boundary conflicts materially with the proposed generated content;
 - further files would only duplicate global guidance or reusable skill content;
 - the user requested only a bounded update to one existing configuration file.
 
 ## Guardrails
 
 - Do not modify global `AGENTS.md` unless the user explicitly requests a global policy change.
+- Do not generate project-specific files in a parent workspace repository when the confirmed target is a child project.
+- Do not alter `.gitignore`, `.git/info/exclude`, sparse-checkout rules, or other source-control visibility settings merely to make generated project files trackable.
+- Do not stage or commit project files in a parent repository.
+- Do not initialize Git, create a repository, or change repository ownership boundaries unless the user explicitly requests it.
 - Do not select a greenfield technology stack or capability without user approval.
 - Do not generate application source code as part of bootstrap.
 - Do not copy generic language, Linux, security, or workflow guidance into project `AGENTS.md`.
@@ -72,6 +82,9 @@ Stop bootstrap when:
 
 ## Validation
 
+- Confirm every generated file is located inside the explicit target directory.
+- Confirm the target's nearest Git repository root matches the intended project repository before staging or committing anything.
+- Confirm no parent workspace ignore rule or repository file was modified.
 - Confirm generated JSON is syntactically valid.
 - Confirm project `AGENTS.md` contains only concrete repository-specific content.
 - Confirm only approved ecosystems and capabilities appear in the profile and local rules.
@@ -83,11 +96,12 @@ Stop bootstrap when:
 
 Report only:
 
+- confirmed target directory and nearest Git root;
 - files created or updated;
 - confirmed ecosystems and capabilities recorded;
 - existing configuration preserved or merged;
 - targeted checks executed;
-- unresolved decisions or conflicts;
+- unresolved repository-boundary decisions or conflicts;
 - the exact bootstrap command when the user must run it manually.
 
 ## Resources
