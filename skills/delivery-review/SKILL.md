@@ -1,106 +1,60 @@
 ---
 name: delivery-review
-description: Perform one bounded, strictly read-only final review of completed work against the current request, authoritative source, intended repository boundary, and effective diff. Activate after implementation when the user requests review, when a focused pre-delivery check is needed, or when correctness, regression, compatibility, security, generated-file, dependency, repository-boundary, and validation gaps must be assessed. Do not activate before implementation, for broad repository audits, for repeated review loops, or to fix findings, alter staging, change ignore rules, or create commits.
+description: Perform one bounded, strictly read-only final review of completed work against the request, source of truth, repository boundary, and effective diff. Activate only when the user explicitly requests final review, delivery readiness, or a pre-commit assessment. Do not activate during normal implementation, to fix findings, alter Git state, or repeat an unchanged review.
 ---
 
 # Delivery Review
 
 ## Purpose
 
-Determine whether the completed task is ready to deliver by reviewing only the requested scope, intended repository boundary, and effective changes without modifying repository state.
+Decide whether completed work is ready to deliver without modifying repository state.
 
 ## Activate when
 
-- implementation is complete and the user requests a final review;
-- a focused diff must be checked before delivery or commit;
-- correctness, regressions, boundary handling, compatibility, security, dependencies, generated files, repository visibility, or validation gaps may affect readiness;
-- a previous implementation result needs one evidence-based quality check;
-- the task has a clear request and source of truth against which the result can be compared.
+- the user explicitly requests final review or delivery readiness;
+- completed work has a clear request, source of truth, and effective diff;
+- one focused pre-commit or pre-delivery assessment is needed.
 
 ## Do not activate when
 
-- no implementation or effective diff exists yet;
-- the task is repository discovery, architecture design, troubleshooting, or initial implementation;
-- the user asks for a broad repository audit unrelated to the current task;
-- the same unchanged diff has already received a complete delivery review;
-- the task is a simple factual explanation with no deliverable to review;
-- the requested action is to fix findings, modify files, stage changes, alter ignore rules, create a commit, or publish work.
+- implementation is still in progress or no diff exists;
+- ordinary implementation validation is sufficient;
+- the task is discovery, design, troubleshooting, or a broad audit;
+- the requested action is to fix, stage, commit, or publish work.
 
 ## Required context
 
-Use the prompt and conversation before inspecting files. Establish only:
-
-- the current user request and explicit non-goals;
-- the authoritative specification, issue, plan, or source files;
-- the explicit target directory and intended Git repository root;
-- the effective diff and files intentionally changed;
-- repository-specific constraints and selected ecosystem conventions;
-- dependency, schema, infrastructure, generated-file, source-control visibility, and documentation impacts;
-- checks already executed and their actual results;
-- known limitations and manual validation still required.
+Confirm the request and non-goals, source of truth, target directory and intended Git root, effective diff, applicable project constraints, checks already run, and known limitations.
 
 ## Workflow
 
-1. Read the current request, accepted clarifications, and designated source of truth.
-2. Resolve the explicit target directory and confirm the intended nearest Git repository root.
-3. Inspect only the effective diff and directly affected files already intended for delivery.
-4. Verify that the implemented behavior matches the requested scope and non-goals.
-5. Check for likely defects, regressions, unsafe side effects, invalid boundary handling, and compatibility breaks.
-6. Check consistency with the repository structure and applicable ecosystem conventions.
-7. Review dependency, schema, infrastructure, generated-file, security, source-control visibility, and documentation impacts only when affected.
-8. Confirm which approved checks actually ran and identify remaining manual validation.
-9. Separate blocking findings from non-blocking improvements.
-10. Report findings without changing files, staging, ignore rules, repository boundaries, or commit contents.
-11. Perform one review pass unless relevant code or requirements change afterward.
+1. Read the request, accepted decisions, and authoritative source.
+2. Confirm the target directory and intended nearest Git root.
+3. Inspect only the effective diff and directly affected files intended for delivery.
+4. Check requested behavior, regressions, boundaries, compatibility, dependencies, generated files, security, and validation only where affected.
+5. Separate blocking findings from non-blocking improvements.
+6. Report findings without changing files or Git state.
+7. Perform one pass unless relevant code or requirements change.
 
 ## Stop conditions
 
-Stop review when:
-
-- every changed area relevant to the request has been assessed once;
-- findings are supported by concrete code, configuration, repository-boundary, or missing-validation evidence;
-- the review identifies a blocking issue that requires implementation or source-control policy changes;
-- remaining uncertainty requires unavailable runtime access or user-executed validation;
-- further inspection would expand beyond the requested task;
-- the unchanged diff has already been reviewed completely.
+Stop after all changed areas are assessed once, a blocker requires implementation or policy changes, unavailable access prevents verification, or further inspection would exceed scope.
 
 ## Guardrails
 
 - This skill is strictly read-only.
-- Do not edit, create, rename, delete, format, or regenerate files.
-- Do not stage, unstage, restore, commit, amend, push, merge, rebase, or otherwise change Git state.
-- Do not modify `.gitignore`, `.git/info/exclude`, sparse-checkout configuration, attributes, hooks, or any source-control visibility rule.
-- Do not add ignored or untracked files to the intended commit merely to make delivery appear complete.
-- Do not move project files across repository boundaries or include child-project contents in a parent repository.
-- Do not fix findings during the review. Report blockers and require a separate implementation step.
-- Do not restart repository discovery or redesign the product.
-- Do not expand the implementation scope or propose unrelated refactors.
-- Do not invent findings to make the review appear useful.
-- Do not treat optional style preferences as blocking defects.
-- Do not rerun broad tests, builds, containers, or infrastructure checks unless explicitly required.
-- Do not claim checks passed when they were not executed.
-- Do not create repeated reviewer loops on an unchanged diff.
+- Do not edit, generate, stage, restore, commit, push, merge, rebase, or change ignore or repository-boundary rules.
+- Do not add ignored files or child-project contents to a parent repository.
+- Do not fix findings during review; require a separate implementation step.
+- Do not invent findings, broaden scope, or repeat an unchanged review.
 
 ## Validation
 
-- Base conclusions on the actual diff, authoritative request, and confirmed repository boundary.
-- Confirm the reviewed files belong to the intended repository before assessing commit readiness.
-- Treat intentionally ignored workspace content as a repository-boundary signal, not as permission to change ignore policy.
-- Use only targeted syntax, lint, type, or configuration checks permitted by repository instructions.
-- Confirm generated or packaged artifacts only when the task changed their source or explicitly requires them.
-- Record unverified runtime, integration, browser, production, infrastructure, and source-control behavior clearly.
-- Re-review only the portions changed after the previous review.
+- Base conclusions on the actual diff, request, and repository boundary.
+- Use only permitted targeted checks not already run successfully against unchanged code.
+- Treat ignored workspace content as a boundary signal, not permission to change policy.
+- State unverified runtime, integration, browser, production, infrastructure, or source-control behavior.
 
 ## Output
 
-Return findings first, ordered by severity, with exact files or locations when available. Then report:
-
-- confirmed target directory and intended Git root;
-- checks executed;
-- unverified behavior;
-- non-blocking improvements, if material;
-- whether the task is ready to deliver.
-
-For a repository-boundary or ignored-file blocker, state explicitly that no ignore rules, staging state, files, or commits were changed.
-
-If no material issue is found, say so directly.
+Return findings by severity, then the target and Git root, checks executed, unverified behavior, material non-blocking improvements, and readiness. For boundary blockers, state that no files, ignore rules, staging, or commits changed.
