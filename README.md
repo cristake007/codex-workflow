@@ -25,6 +25,7 @@ The installer:
 - copies `rules/default.rules` to `$CODEX_HOME/rules/default.rules`;
 - creates a timestamped backup under `$CODEX_HOME/backups/` before replacing a different existing managed file;
 - links each repository skill individually into `~/.agents/skills`;
+- enables native lifecycle hooks that export every submitted prompt and completed Bash command;
 - installs the repository-managed `software-design` skill;
 - installs the official `repomix-explorer` skill from `yamadashy/repomix`;
 - configures `repomix-explorer` with `allow_implicit_invocation: false`;
@@ -37,7 +38,17 @@ Normal repository analysis therefore uses targeted search and direct file reads.
 
 `CODEX_HOME` is respected when it is defined. Its default value is `~/.codex`.
 
-Restart Codex after installation so the configuration, command rules, and skills are reloaded.
+Restart Codex after installation so the configuration, command rules, and skills are reloaded. On the first start after installing or changing the hooks, open `/hooks`, review the two `chat-audit-export` command hooks, and trust them; Codex skips untrusted hooks.
+
+## Chat audit exports
+
+Every Codex chat is exported automatically under `$CODEX_HOME/chat-exports/<session-id>/`. Each session contains:
+
+- `PROMPTS.md` and `prompts.jsonl` with every submitted prompt;
+- `COMMANDS.md` and `commands.jsonl` with every completed Bash command and its working directory;
+- `session.json` with the session ID, initial working directory, model, and permission mode.
+
+The exporter deliberately does not store command output or assistant responses. These files are local plaintext and may contain sensitive text from prompts or shell commands, so do not commit or share the export directory without reviewing it. Set `CODEX_CHAT_EXPORT_DIR` to use a different export location.
 
 ## Updating
 
@@ -60,6 +71,9 @@ codex-workflow/
 │   └── default.rules
 ├── skills/
 │   ├── README.md
+│   ├── chat-audit-export/
+│   │   ├── SKILL.md
+│   │   └── export-chat.mjs
 │   └── software-design/
 │       ├── SKILL.md
 │       └── references/
