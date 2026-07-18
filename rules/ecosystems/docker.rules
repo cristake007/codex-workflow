@@ -1,0 +1,54 @@
+# Docker project command rules
+# Copy into <repo>/.codex/rules/ only when Docker is an active project ecosystem.
+
+prefix_rule(
+    pattern = ["docker", "compose", ["up", "build", "down", "rm"]],
+    decision = "prompt",
+    justification = "Compose lifecycle commands can create, rebuild, stop, remove, or replace project services.",
+    match = [
+        "docker compose up -d",
+        "docker compose build",
+        "docker compose down",
+        "docker compose rm -f",
+    ],
+)
+
+prefix_rule(
+    pattern = ["docker-compose", ["up", "build", "down", "rm"]],
+    decision = "prompt",
+    justification = "Compose lifecycle commands can create, rebuild, stop, remove, or replace project services.",
+    match = [
+        "docker-compose up -d",
+        "docker-compose build",
+        "docker-compose down",
+        "docker-compose rm -f",
+    ],
+)
+
+prefix_rule(
+    pattern = ["docker", "rm"],
+    decision = "prompt",
+    justification = "Removing containers can interrupt running project services.",
+    match = [
+        "docker rm container-name",
+        "docker rm -f container-name",
+    ],
+)
+
+prefix_rule(
+    pattern = ["docker", "rmi"],
+    decision = "prompt",
+    justification = "Removing images can affect other projects and require a rebuild or download.",
+    match = [
+        "docker rmi image-name",
+    ],
+)
+
+prefix_rule(
+    pattern = ["docker", "volume", "rm"],
+    decision = "prompt",
+    justification = "Docker volumes may contain persistent application data.",
+    match = [
+        "docker volume rm volume-name",
+    ],
+)

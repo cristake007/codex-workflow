@@ -19,6 +19,8 @@ const isWindows = process.platform === 'win32';
 const repoRoot = path.dirname(fileURLToPath(import.meta.url));
 const homeDir = homedir();
 const codexHome = path.resolve(process.env.CODEX_HOME || path.join(homeDir, '.codex'));
+const projectsRoot = path.join(repoRoot, 'projects');
+const projectsIgnoreContent = ['*', '!.gitignore', ''].join('\n');
 
 const managedFiles = [
   {
@@ -174,6 +176,24 @@ function checkRuntime() {
   }
 
   info(`Runtime verified: Node.js ${process.versions.node}, ${git.stdout.trim()}`);
+}
+
+async function ensureProjectsWorkspace() {
+  await mkdir(projectsRoot, { recursive: true });
+  const ignorePath = path.join(projectsRoot, '.gitignore');
+
+  if (!(await exists(ignorePath))) {
+    await writeFile(ignorePath, projectsIgnoreContent, 'utf8');
+    info(`Projects workspace created: ${projectsRoot}`);
+    return;
+  }
+
+  const ignoreStat = await lstat(ignorePath);
+  if (ignoreStat.isDirectory()) {
+    fail(`projects/.gitignore is a directory, expected a file: ${ignorePath}`);
+  }
+
+  info(`Projects workspace is ready: ${projectsRoot}`);
 }
 
 async function validateSources() {
@@ -392,6 +412,7 @@ async function installRepomixExplorer() {
 
 async function main() {
   checkRuntime();
+  await ensureProjectsWorkspace();
   await validateSources();
   await installManagedFiles();
   await removeRetiredRepositorySkillLinks();

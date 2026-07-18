@@ -1,0 +1,109 @@
+# Linux server security command rules
+# Copy into <repo>/.codex/rules/ only when server-security is selected.
+
+prefix_rule(
+    pattern = [["sshd", "nginx", "httpd"], "-t"],
+    decision = "allow",
+    justification = "These invocations validate configuration without applying it.",
+    match = [
+        "sshd -t",
+        "nginx -t",
+        "httpd -t",
+    ],
+)
+
+prefix_rule(
+    pattern = ["apachectl", "configtest"],
+    decision = "allow",
+    justification = "Apache configuration validation does not apply changes.",
+    match = [
+        "apachectl configtest",
+    ],
+)
+
+prefix_rule(
+    pattern = ["ufw", "status"],
+    decision = "allow",
+    justification = "Firewall status inspection does not change policy.",
+    match = [
+        "ufw status verbose",
+    ],
+)
+
+prefix_rule(
+    pattern = ["fail2ban-client", "status"],
+    decision = "allow",
+    justification = "Fail2ban status inspection does not modify jails or bans.",
+    match = [
+        "fail2ban-client status",
+        "fail2ban-client status sshd",
+    ],
+)
+
+prefix_rule(
+    pattern = ["ufw", ["enable", "disable", "allow", "deny", "reject", "delete", "reset", "reload", "default", "route"]],
+    decision = "prompt",
+    justification = "Firewall changes can expose services or lock out remote administration.",
+    match = [
+        "ufw enable",
+        "ufw allow 22/tcp",
+        "ufw delete allow 80/tcp",
+    ],
+)
+
+prefix_rule(
+    pattern = [["firewall-cmd", "iptables", "ip6tables", "nft"]],
+    decision = "prompt",
+    justification = "Firewall commands require review because they can change policy or lock out remote administration.",
+    match = [
+        "firewall-cmd --list-all",
+        "firewall-cmd --add-service=https --permanent",
+        "iptables -S",
+        "iptables -A INPUT -p tcp --dport 22 -j ACCEPT",
+        "nft list ruleset",
+        "nft add rule inet filter input tcp dport 22 accept",
+    ],
+)
+
+prefix_rule(
+    pattern = ["fail2ban-client", ["set", "reload", "restart"]],
+    decision = "prompt",
+    justification = "Changing fail2ban state can alter access controls or remove active protection.",
+    match = [
+        "fail2ban-client reload",
+        "fail2ban-client set sshd unbanip 192.0.2.10",
+    ],
+)
+
+prefix_rule(
+    pattern = [["certbot", "acme.sh"]],
+    decision = "prompt",
+    justification = "Certificate automation can change live web-server configuration and external ACME state.",
+    match = [
+        "certbot --nginx -d example.com",
+        "acme.sh --issue -d example.com --webroot /var/www/html",
+    ],
+)
+
+prefix_rule(
+    pattern = [["ssh-copy-id", "setenforce", "aa-disable", "aa-enforce", "visudo"]],
+    decision = "prompt",
+    justification = "These commands change remote access or mandatory access-control policy.",
+    match = [
+        "ssh-copy-id user@example.com",
+        "setenforce 0",
+        "aa-disable /usr/sbin/example",
+        "visudo",
+    ],
+)
+
+prefix_rule(
+    pattern = ["systemctl", ["restart", "reload", "stop"]],
+    decision = "prompt",
+    justification = "Restarting or stopping services can cause downtime or remote lockout.",
+    match = [
+        "systemctl restart sshd",
+        "systemctl reload nginx",
+        "systemctl restart fail2ban",
+    ],
+)

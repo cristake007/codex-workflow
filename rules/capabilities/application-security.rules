@@ -1,0 +1,60 @@
+# Application security command rules
+# Copy into <repo>/.codex/rules/ only when application-security is selected.
+
+prefix_rule(
+    pattern = [["npm", "pnpm", "yarn", "bun", "composer", "cargo"], "audit"],
+    decision = "prompt",
+    justification = "Dependency audits may contact registries, update advisory data, or expose dependency metadata.",
+    match = [
+        "npm audit",
+        "composer audit",
+        "cargo audit",
+    ],
+)
+
+prefix_rule(
+    pattern = ["pip-audit"],
+    decision = "prompt",
+    justification = "Dependency audits may contact advisory services and expose dependency metadata.",
+    match = [
+        "pip-audit",
+    ],
+)
+
+prefix_rule(
+    pattern = [["bandit", "gosec", "brakeman", "semgrep", "gitleaks", "trufflehog"]],
+    decision = "prompt",
+    justification = "Security scanners may inspect sensitive files, contact remote rule sources, or produce sensitive findings.",
+    match = [
+        "bandit -r src",
+        "gosec ./...",
+        "brakeman",
+        "semgrep --config auto",
+        "gitleaks detect",
+    ],
+)
+
+prefix_rule(
+    pattern = [["trivy", "grype", "syft"]],
+    decision = "prompt",
+    justification = "Supply-chain scanners may download databases, inspect images or files, and expose dependency metadata.",
+    match = [
+        "trivy fs .",
+        "trivy image example:latest",
+        "grype dir:.",
+        "syft dir:.",
+    ],
+)
+
+prefix_rule(
+    pattern = [["nmap", "masscan", "nikto", "nuclei", "sqlmap", "hydra", "wpscan", "gobuster", "ffuf", "zap-cli"]],
+    decision = "prompt",
+    justification = "Active security testing requires confirmed authorization, target scope, and rate limits.",
+    match = [
+        "nmap example.com",
+        "nikto -h https://example.com",
+        "nuclei -u https://example.com",
+        "sqlmap -u https://example.com/item?id=1",
+        "ffuf -u https://example.com/FUZZ -w words.txt",
+    ],
+)

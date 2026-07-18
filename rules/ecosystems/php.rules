@@ -1,0 +1,42 @@
+# PHP project command rules
+# Copy into <repo>/.codex/rules/ only when PHP is an active project ecosystem.
+
+prefix_rule(
+    pattern = ["php", "-l"],
+    decision = "allow",
+    justification = "PHP syntax validation is read-only and narrowly scoped.",
+    match = [
+        "php -l src/Example.php",
+    ],
+)
+
+prefix_rule(
+    pattern = ["composer", ["install", "update", "require", "remove"]],
+    decision = "prompt",
+    justification = "Composer dependency operations can modify installed packages, manifests, and lockfiles.",
+    match = [
+        "composer install",
+        "composer update",
+        "composer require vendor/package",
+        "composer remove vendor/package",
+    ],
+)
+
+prefix_rule(
+    pattern = ["php", "artisan", "migrate"],
+    decision = "prompt",
+    justification = "Database migrations may modify persistent data or schema state.",
+    match = [
+        "php artisan migrate",
+        "php artisan migrate --force",
+    ],
+)
+
+prefix_rule(
+    pattern = ["php", "bin/console", "doctrine:migrations:migrate"],
+    decision = "prompt",
+    justification = "Database migrations may modify persistent data or schema state.",
+    match = [
+        "php bin/console doctrine:migrations:migrate",
+    ],
+)
