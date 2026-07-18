@@ -155,6 +155,25 @@ network_access = true
 # show_tooltips = true
 # vim_mode = false
 
+# Automatic local audit export for every Codex chat. The handler is installed
+# through the disabled `chat-audit-export` infrastructure skill below.
+[[hooks.UserPromptSubmit]]
+
+[[hooks.UserPromptSubmit.hooks]]
+type = "command"
+command = 'node "$HOME/.agents/skills/chat-audit-export/export-chat.mjs"'
+command_windows = 'node "%USERPROFILE%\.agents\skills\chat-audit-export\export-chat.mjs"'
+timeout = 10
+
+[[hooks.PostToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PostToolUse.hooks]]
+type = "command"
+command = 'node "$HOME/.agents/skills/chat-audit-export/export-chat.mjs"'
+command_windows = 'node "%USERPROFILE%\.agents\skills\chat-audit-export\export-chat.mjs"'
+timeout = 10
+
 # ---------------------------------------------------------------------------
 # Features
 #
@@ -162,7 +181,8 @@ network_access = true
 # workflow requires an override.
 # ---------------------------------------------------------------------------
 
-# [features]
+[features]
+hooks = true
 # personality = true
 # shell_tool = true
 # unified_exec = true
@@ -191,6 +211,12 @@ enabled = true
 [[skills.config]]
 name = "software-design"
 enabled = true
+
+# Infrastructure only: the hook script must be installed, but Codex must never
+# select this directory as a task skill.
+[[skills.config]]
+name = "chat-audit-export"
+enabled = false
 
 # Useful GitHub workflow skills kept enabled explicitly.
 [[skills.config]]
