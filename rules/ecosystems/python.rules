@@ -1,0 +1,87 @@
+# Python project command rules
+# Copy into <repo>/.codex/rules/ only when Python is an active project ecosystem.
+
+prefix_rule(
+    pattern = [["python", "python3"], "-m", "py_compile"],
+    decision = "allow",
+    justification = "Python bytecode syntax validation is local and non-destructive.",
+    match = [
+        "python -m py_compile src/example.py",
+        "python3 -m py_compile src/example.py",
+    ],
+)
+
+prefix_rule(
+    pattern = [["pip", "pip3"], ["install", "uninstall"]],
+    decision = "prompt",
+    justification = "Package installation or removal changes the active Python environment.",
+    match = [
+        "pip install package-name",
+        "pip3 uninstall package-name",
+    ],
+)
+
+prefix_rule(
+    pattern = [["python", "python3"], "-m", "pip", ["install", "uninstall"]],
+    decision = "prompt",
+    justification = "Package installation or removal changes the active Python environment.",
+    match = [
+        "python -m pip install package-name",
+        "python3 -m pip uninstall package-name",
+    ],
+)
+
+prefix_rule(
+    pattern = [["python", "python3"], "manage.py", "migrate"],
+    decision = "prompt",
+    justification = "Django migrations may modify persistent data or schema state.",
+    match = [
+        "python manage.py migrate",
+        "python3 manage.py migrate app_name",
+    ],
+)
+
+prefix_rule(
+    pattern = ["alembic", ["upgrade", "downgrade"]],
+    decision = "prompt",
+    justification = "Alembic migration commands modify database schema state.",
+    match = [
+        "alembic upgrade head",
+        "alembic downgrade -1",
+    ],
+)
+
+
+prefix_rule(
+    pattern = ["poetry", ["install", "add", "remove", "update"]],
+    decision = "prompt",
+    justification = "Poetry dependency operations can modify the environment, manifest, and lockfile.",
+    match = [
+        "poetry install",
+        "poetry add package-name",
+        "poetry remove package-name",
+        "poetry update",
+    ],
+)
+
+prefix_rule(
+    pattern = ["uv", ["sync", "add", "remove"]],
+    decision = "prompt",
+    justification = "uv dependency operations can modify the environment, manifest, and lockfile.",
+    match = [
+        "uv sync",
+        "uv add package-name",
+        "uv remove package-name",
+    ],
+)
+
+prefix_rule(
+    pattern = ["pipenv", ["install", "uninstall", "update"]],
+    decision = "prompt",
+    justification = "Pipenv dependency operations can modify the environment, manifest, and lockfile.",
+    match = [
+        "pipenv install",
+        "pipenv uninstall package-name",
+        "pipenv update",
+    ],
+)

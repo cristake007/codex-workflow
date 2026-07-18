@@ -10,8 +10,6 @@ Personal Codex instructions, configuration, command rules, reusable skills, proj
 
 ## Setup
 
-Clone the repository and run the same installer on Windows or Linux:
-
 ```text
 git clone https://github.com/cristake007/codex-workflow.git
 cd codex-workflow
@@ -20,35 +18,75 @@ node install.mjs
 
 The installer:
 
-- copies `global/AGENTS.md` to `$CODEX_HOME/AGENTS.md`;
-- copies `config/config.toml` to `$CODEX_HOME/config.toml`;
-- copies `rules/default.rules` to `$CODEX_HOME/rules/default.rules`;
-- creates a timestamped backup under `$CODEX_HOME/backups/` before replacing a different existing managed file;
+- copies `global/AGENTS.md`, `config.toml`, and the global `default.rules` into `CODEX_HOME`;
+- backs up different managed files before replacement;
 - links each repository skill individually into `~/.agents/skills`;
-- enables native lifecycle hooks that export every submitted prompt and completed Bash command;
-- installs the repository-managed `software-design` skill;
-- installs the official `repomix-explorer` skill from `yamadashy/repomix`;
-- configures `repomix-explorer` with `allow_implicit_invocation: false`;
-- preserves unrelated skills already installed there;
-- refuses to replace unrelated existing skill directories.
+- installs the repository-managed workflow, ecosystem, Linux, and security skills;
+- installs Repomix Explorer for explicit invocation only;
+- preserves unrelated installed skills.
 
-A fresh clone followed by `node install.mjs` is sufficient. Repomix itself is not installed globally; the official skill runs it through `npx` only when invoked explicitly.
+`CODEX_HOME` defaults to `~/.codex`. Restart Codex after installation.
 
-Normal repository analysis therefore uses targeted search and direct file reads. Repomix Explorer remains available manually through `$repomix-explorer`, but Codex will not select it automatically from an ordinary repository-analysis prompt.
+## Project Discovery and Bootstrap
 
-`CODEX_HOME` is respected when it is defined. Its default value is `~/.codex`.
+`project-discovery` distinguishes existing, greenfield, and ambiguous repositories. It preserves established technologies and does not choose a stack for an empty repository without user approval.
 
-Restart Codex after installation so the configuration, command rules, and skills are reloaded. On the first start after installing or changing the hooks, open `/hooks`, review the two `chat-audit-export` command hooks, and trust them; Codex skips untrusted hooks.
+### Mechanical setup
 
-## Chat audit exports
+```text
+node init-project.mjs \
+  --target /path/to/project \
+  --ecosystems php,javascript,docker \
+  --capabilities linux,application-security,server-security
+```
 
-Every Codex chat is exported automatically under `$CODEX_HOME/chat-exports/<session-id>/`. Each session contains:
+### Interactive `AGENTS.md` generator
 
-- `PROMPTS.md` and `prompts.jsonl` with every submitted prompt;
-- `COMMANDS.md` and `commands.jsonl` with every completed Bash command and its working directory;
-- `session.json` with the session ID, initial working directory, model, and permission mode.
+```text
+node init-project.mjs --target /path/to/project --interactive
+```
 
-The exporter deliberately does not store command output or assistant responses. These files are local plaintext and may contain sensitive text from prompts or shell commands, so do not commit or share the export directory without reviewing it. Set `CODEX_CHAT_EXPORT_DIR` to use a different export location.
+Add `--advanced` for extra security and compatibility questions.
+
+### Repeatable generation from confirmed answers
+
+```text
+node init-project.mjs \
+  --target /path/to/project \
+  --answers project-answers.json
+```
+
+See `templates/project-answers.example.json` for the accepted shape.
+
+The bootstrap creates:
+
+- a concise repository `AGENTS.md` when `--interactive` or `--answers` is used;
+- `.codex/project-profile.json`;
+- `.codex/environment.local.example.md`;
+- only the selected rule files under `.codex/rules/`.
+
+It does not generate application code, modify the global `AGENTS.md`, choose a greenfield stack, or overwrite different existing project files.
+
+## Ecosystems and Capabilities
+
+Programming ecosystems:
+
+- PHP
+- Python
+- JavaScript and TypeScript
+- Shell
+- iOS and Swift
+- Docker
+
+Optional cross-cutting capabilities:
+
+- Linux administration and troubleshooting
+- Application security
+- Linux server security
+
+Capabilities are selected separately. A web project does not automatically receive security rules, and a Docker project does not automatically authorize host administration.
+
+Security skills are defensive. Active testing requires confirmed ownership or authorization, a defined target, and explicit scope.
 
 ## Updating
 
@@ -57,7 +95,40 @@ git pull
 node install.mjs
 ```
 
-Files that are already identical are left unchanged and do not create unnecessary backups. If Repomix Explorer already has an `agents/openai.yaml`, the installer preserves its other metadata, backs up the file before changing it, and enforces only `policy.allow_implicit_invocation: false`.
+Identical files are left unchanged and do not create unnecessary backups.
+
+## Uninstalling
+
+Inspect the planned changes first:
+
+```text
+node uninstall.mjs --dry-run
+```
+
+Apply the uninstall:
+
+```text
+node uninstall.mjs
+```
+
+The uninstaller:
+
+- restores the newest valid backup for each unchanged repository-managed Codex file;
+- removes a managed file only when it still matches the repository source and no backup exists;
+- leaves modified files, directories, symlinks, and unrelated skills untouched;
+- removes only skill links that resolve to the corresponding skill directory in this repository;
+- restores installer-managed Repomix Explorer metadata when its backup can be verified, while preserving the external Repomix Explorer skill;
+- preserves the repository `projects/` workspace and all backup directories.
+
+## Validation
+
+```text
+node --check install.mjs
+node --check uninstall.mjs
+node --check init-project.mjs
+node --test tests/project-bootstrap.test.mjs
+node --test tests/uninstall.test.mjs
+```
 
 ## Repository Layout
 
@@ -68,22 +139,25 @@ codex-workflow/
 ├── global/
 │   └── AGENTS.md
 ├── rules/
-│   └── default.rules
+│   ├── default.rules
+│   ├── ecosystems/
+│   └── capabilities/
 ├── skills/
-│   ├── README.md
-│   ├── chat-audit-export/
-│   │   ├── SKILL.md
-│   │   └── export-chat.mjs
+│   ├── project-discovery/
+│   ├── project-bootstrap/
+│   ├── delivery-review/
+│   ├── ecosystem-*/
+│   ├── linux-*/
+│   ├── security-review/
+│   ├── application-security/
+│   ├── server-security/
 │   └── software-design/
-│       ├── SKILL.md
-│       └── references/
-│           └── engineering-constitution.md
 ├── templates/
-│   ├── AGENTS-project.md
-│   └── README.md
+├── tests/
+├── init-project.mjs
 ├── install.mjs
-├── .gitignore
+├── uninstall.mjs
 └── README.md
 ```
 
-Global instructions contain only behavioral rules that should apply to every task. `config.toml` controls Codex runtime defaults, while `.rules` files control command approval outside the sandbox. Detailed reusable workflows and reference material belong in focused skills. Project-specific facts and commands belong in the project's own `AGENTS.md`.
+Global instructions contain behavior that applies to every task. Project facts belong in the repository `AGENTS.md`. Reusable conventions belong in focused skills. Command approvals for selected technologies and capabilities belong in the trusted project's `.codex/rules/` directory.
