@@ -9,33 +9,27 @@ tags:
 
 ## Active projects
 
-Add links to the project context notes currently guiding work.
-
-- 
+- [[Projects/Codex Workflow]]
 
 ## Open decisions
 
-Link proposed decisions that still need approval or evidence.
+No proposed decisions are currently awaiting approval.
 
-- 
+## Accepted decisions under review
+
+- [[Decisions/0001 - Adopt a curated engineering workflow pack]]
 
 ## Experiments awaiting review
 
-Link experiments whose results have not yet been accepted or rejected.
-
-- 
+No controlled experiment has been recorded yet.
 
 ## Improvement candidates
 
-Link workflow improvements that may eventually change skills, rules, or `AGENTS.md`.
-
-- 
+- [[Improvements/Evaluate the adapted workflow pack]]
 
 ## Recent session reviews
 
-Link only sessions that produced a durable decision, pattern, experiment, or improvement candidate.
-
-- 
+No session review has been promoted into the vault yet.
 
 ## Core references
 
