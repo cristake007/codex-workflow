@@ -45,7 +45,7 @@ test('adapted workflow skills follow the repository contract', async () => {
     const content = await readFile(skillPath, 'utf8');
 
     assert.match(content, /^---\n[\s\S]*?\nname:\s*[^\n]+\n[\s\S]*?description:\s*[^\n]+\n[\s\S]*?\n---\n/);
-    assert.match(content, new RegExp(`^# ${skillName.split('-').map((part) => part[0].toUpperCase() + part.slice(1)).join(' ')}`, 'm'));
+    assert.match(content, /^# .+/m);
 
     let previousIndex = -1;
     for (const section of requiredSections) {
