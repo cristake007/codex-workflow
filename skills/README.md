@@ -39,12 +39,32 @@ The body defines behavior after activation. It must:
 
 An exact file or directory path does not automatically disable an ecosystem, Linux, or security skill when that skill's technical judgment still affects the task. Discovery skills should not activate merely to rediscover paths, facts, decisions, or authoritative files already supplied by the user or established in the conversation.
 
+Skills with `disable-model-invocation: true` are deliberate user-invoked workflows. They must not activate automatically merely because their output could be useful.
+
 ## Workflow skills
+
+### Core repository workflow
 
 - `project-discovery` — establishes only missing repository and project context.
 - `project-bootstrap` — creates minimal project-specific Codex configuration from confirmed context.
 - `delivery-review` — performs one bounded final review of the requested task and effective diff.
 - `software-design` — applies the language-independent engineering constitution to architecture and substantial design work.
+
+### Adapted engineering workflow pack
+
+The following skills adapt ideas from `mattpocock/skills` to this repository's stricter scope, Git, documentation, and validation rules:
+
+- `requirements-interview` — user-invoked requirements clarification without automatic documentation.
+- `to-spec` — user-invoked synthesis of resolved requirements into a concise specification.
+- `to-tickets` — user-invoked decomposition into dependency-aware, session-sized vertical slices.
+- `tdd` — proportional red-green-refactor at a real public seam.
+- `diagnosing-bugs` — reproduce, minimise, hypothesise, instrument, fix, and regress.
+- `domain-modeling` — canonical language, business rules, context notes, and sparing ADRs.
+- `codebase-design` — bounded deep-module and seam design, never an automatic whole-repository scan.
+- `resolving-merge-conflicts` — resolve Git conflicts by tracing both sides to primary intent.
+- `knowledge-capture` — user-invoked capture into the Obsidian-compatible `knowledge/` vault.
+
+These skills do not automatically commit, push, create issues, start broad architecture scans, run heavy test suites, or generate documentation outside their explicit activation conditions.
 
 ## Ecosystem skills
 
