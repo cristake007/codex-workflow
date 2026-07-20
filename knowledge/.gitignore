@@ -1,0 +1,8 @@
+# Machine- and session-specific Obsidian state
+.obsidian/workspace.json
+.obsidian/workspaces.json
+.obsidian/cache/
+
+# Local deletion and transient files
+.trash/
+*.tmp
