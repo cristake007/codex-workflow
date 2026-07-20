@@ -67,6 +67,52 @@ The bootstrap creates:
 
 It does not generate application code, modify the global `AGENTS.md`, choose a greenfield stack, or overwrite different existing project files.
 
+## Engineering Workflow Pack
+
+The existing technical and safety skills remain authoritative. A curated engineering workflow layer adapts concepts from Matt Pocock's `skills` repository without importing its automatic commit, broad scan, heavy-test, or mandatory-interview defaults.
+
+User-invoked orchestration:
+
+- `requirements-interview` — resolve material product or architecture ambiguity;
+- `to-spec` — capture already resolved requirements;
+- `to-tickets` — create dependency-aware tasks that can each begin in a new agent session;
+- `knowledge-capture` — record durable conclusions in the knowledge vault.
+
+Reusable engineering discipline:
+
+- `tdd`;
+- `diagnosing-bugs`;
+- `domain-modeling`;
+- `codebase-design`;
+- `resolving-merge-conflicts`.
+
+See `skills/README.md` for activation boundaries and the complete skill contract. Attribution and the applicable MIT notice are in `THIRD_PARTY_NOTICES.md`.
+
+## Obsidian Knowledge Vault
+
+Open the repository's `knowledge/` directory as a standalone Obsidian vault.
+
+The vault stores reviewed knowledge rather than raw transcripts:
+
+```text
+captures and audit evidence
+          ↓
+reviewed sessions, decisions, experiments, and patterns
+          ↓
+approved workflow changes
+```
+
+The vault includes:
+
+- a dashboard;
+- project, session, decision, experiment, pattern, and improvement-note conventions;
+- core Obsidian templates with YAML properties;
+- tracked core-plugin and template-folder settings;
+- Git ignores for volatile workspace state;
+- no community-plugin dependency.
+
+Raw command logs and reports stay in their existing capture locations and should be linked from vault notes rather than duplicated. Improvement notes do not automatically modify skills, rules, or `AGENTS.md`.
+
 ## Ecosystems and Capabilities
 
 Programming ecosystems:
@@ -118,7 +164,7 @@ The uninstaller:
 - leaves modified files, directories, symlinks, and unrelated skills untouched;
 - removes only skill links that resolve to the corresponding skill directory in this repository;
 - restores installer-managed Repomix Explorer metadata when its backup can be verified, while preserving the external Repomix Explorer skill;
-- preserves the repository `projects/` workspace and all backup directories.
+- preserves the repository `projects/` workspace, `knowledge/` vault, and all backup directories.
 
 ## Validation
 
@@ -128,6 +174,7 @@ node --check uninstall.mjs
 node --check init-project.mjs
 node --test tests/project-bootstrap.test.mjs
 node --test tests/uninstall.test.mjs
+node --test tests/workflow-pack.test.mjs
 ```
 
 ## Repository Layout
@@ -138,6 +185,10 @@ codex-workflow/
 │   └── config.toml
 ├── global/
 │   └── AGENTS.md
+├── knowledge/
+│   ├── .obsidian/
+│   ├── Dashboard.md
+│   └── Templates/
 ├── rules/
 │   ├── default.rules
 │   ├── ecosystems/
@@ -146,6 +197,15 @@ codex-workflow/
 │   ├── project-discovery/
 │   ├── project-bootstrap/
 │   ├── delivery-review/
+│   ├── requirements-interview/
+│   ├── to-spec/
+│   ├── to-tickets/
+│   ├── tdd/
+│   ├── diagnosing-bugs/
+│   ├── domain-modeling/
+│   ├── codebase-design/
+│   ├── resolving-merge-conflicts/
+│   ├── knowledge-capture/
 │   ├── ecosystem-*/
 │   ├── linux-*/
 │   ├── security-review/
@@ -160,4 +220,4 @@ codex-workflow/
 └── README.md
 ```
 
-Global instructions contain behavior that applies to every task. Project facts belong in the repository `AGENTS.md`. Reusable conventions belong in focused skills. Command approvals for selected technologies and capabilities belong in the trusted project's `.codex/rules/` directory.
+Global instructions contain behavior that applies to every task. Project facts belong in the repository `AGENTS.md`. Reusable conventions belong in focused skills. Command approvals for selected technologies and capabilities belong in the trusted project's `.codex/rules/` directory. Curated cross-session knowledge belongs in the `knowledge/` vault.
